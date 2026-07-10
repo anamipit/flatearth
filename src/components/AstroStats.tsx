@@ -5,16 +5,11 @@ import { getPlanetStats } from '../lib/astronomy';
 
 export function AstroStats() {
   const { currentTime, selectedPlanet, setSelectedPlanet, targetLocation } = useSimulation();
-  const [stats, setStats] = useState<any>(null);
-
-  useEffect(() => {
-    const data = getPlanetStats(
+  const stats = React.useMemo(() => getPlanetStats(
       new Date(currentTime), 
       targetLocation ? targetLocation.lat : undefined, 
       targetLocation ? targetLocation.lon : undefined
-    );
-    setStats(data);
-  }, [currentTime, targetLocation]);
+    ), [currentTime, targetLocation]);
 
   if (!stats || !selectedPlanet) return null;
 

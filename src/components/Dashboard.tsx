@@ -27,29 +27,15 @@ export function Dashboard() {
   const [eclipseModal, setEclipseModal] = useState<{type: 'solar' | 'lunar', scope: 'global' | 'local'} | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
   
-  const [riseSetTimes, setRiseSetTimes] = useState<{sunRise: Date|null, sunSet: Date|null, moonRise: Date|null, moonSet: Date|null} | null>(null);
-  
-  const date = new Date(currentTime);
-  const gmst = getGMST(date);
-  
-  const sunPos = getSunPosition(date);
-  const sunSub = getSubpoint(sunPos.ra, sunPos.dec, gmst);
-  const planetStats = getPlanetStats(date);
-  
-  const moonPos = getMoonPosition(date);
-  const moonSub = getSubpoint(moonPos.ra, moonPos.dec, gmst);
-
-  useEffect(() => {
+  const riseSetTimes = React.useMemo(() => {
     if (targetLocation) {
-      // Calculate based on the current simulation date (using start of day)
-      const startOfDay = new Date(date);
+      const d = new Date(currentTime);
+      const startOfDay = new Date(d);
       startOfDay.setUTCHours(0,0,0,0);
-      const times = getRiseSetTimes(startOfDay, targetLocation.lat, targetLocation.lon);
-      setRiseSetTimes(times);
-    } else {
-      setRiseSetTimes(null);
+      return getRiseSetTimes(startOfDay, targetLocation.lat, targetLocation.lon);
     }
-  }, [targetLocation, date.getUTCDate(), date.getUTCMonth(), date.getUTCFullYear()]);
+    return null;
+  }, [targetLocation, new Date(currentTime).getUTCDate(), new Date(currentTime).getUTCMonth(), new Date(currentTime).getUTCFullYear()]);
   
   // Check for conjunctions/eclipses
   const distance = getAngularDistance(sunSub.lat, sunSub.lon, moonSub.lat, moonSub.lon);

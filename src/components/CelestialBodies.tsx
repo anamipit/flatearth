@@ -73,7 +73,7 @@ export function CelestialBodies() {
           const distMoonGroundRay = (t_ground - 1.0) * distSunMoon;
           
           // Physical calculation of shadow radii
-          let R_penumbra = R_moon + (R_sun + R_moon) * (distMoonGroundRay / distSunMoon);
+          let R_penumbra = R_moon + ((R_sun + R_moon) * 0.2) * (distMoonGroundRay / distSunMoon);
           let R_umbra = R_moon - (R_sun - R_moon) * (distMoonGroundRay / distSunMoon);
           
           // Cap penumbra so it doesn't cover the whole map wildly if scaled weirdly
@@ -149,7 +149,7 @@ export function CelestialBodies() {
         </Sphere>
         
         {(hoveredBody === 'Sun' || selectedPlanet === 'Sun') && (
-          <Html position={[0, 1.2, 0]} center zIndexRange={[100, 0]}>
+          <Html position={[0, 1.2, 0]} center zIndexRange={[100, 0]} style={{ pointerEvents: 'none' }}>
             <div className="bg-zinc-950/90 backdrop-blur text-xs px-2 py-0.5 rounded border shadow font-medium whitespace-nowrap border-yellow-500/50 text-yellow-400">
               Matahari
             </div>
@@ -183,7 +183,7 @@ export function CelestialBodies() {
         </Sphere>
         
         {(hoveredBody === 'Moon' || selectedPlanet === 'Moon') && (
-          <Html position={[0, 1.2, 0]} center zIndexRange={[100, 0]}>
+          <Html position={[0, 1.2, 0]} center zIndexRange={[100, 0]} style={{ pointerEvents: 'none' }}>
             <div className="bg-zinc-950/90 backdrop-blur text-xs px-2 py-0.5 rounded border shadow font-medium whitespace-nowrap border-indigo-500/50 text-indigo-400">
               Bulan
             </div>

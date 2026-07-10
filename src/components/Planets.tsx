@@ -95,7 +95,7 @@ export function Planets() {
           </Sphere>
           
           {(hoveredPlanet === planet.name || selectedPlanet === planet.name) && (
-            <Html position={[0, 0.4, 0]} center zIndexRange={[100, 0]}>
+            <Html position={[0, 0.4, 0]} center zIndexRange={[100, 0]} style={{ pointerEvents: 'none' }}>
               <div className="bg-zinc-950/90 backdrop-blur text-xs px-2 py-0.5 rounded border shadow font-medium whitespace-nowrap" style={{ borderColor: planet.color + '80', color: planet.color }}>
                 {planet.label}
               </div>
