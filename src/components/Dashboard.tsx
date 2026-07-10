@@ -27,6 +27,16 @@ export function Dashboard() {
   const [eclipseModal, setEclipseModal] = useState<{type: 'solar' | 'lunar', scope: 'global' | 'local'} | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
   
+  const date = new Date(currentTime);
+  const gmst = getGMST(date);
+  
+  const sunPos = getSunPosition(date);
+  const sunSub = getSubpoint(sunPos.ra, sunPos.dec, gmst);
+  const planetStats = getPlanetStats(date);
+  
+  const moonPos = getMoonPosition(date);
+  const moonSub = getSubpoint(moonPos.ra, moonPos.dec, gmst);
+
   const riseSetTimes = React.useMemo(() => {
     if (targetLocation) {
       const d = new Date(currentTime);
