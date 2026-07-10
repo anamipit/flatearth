@@ -19,6 +19,8 @@ interface SimulationState {
   cameraMovement: { x: number, y: number, z: number };
   cameraRotation: { x: number, y: number };
   showDatePicker: boolean;
+  showAstroEvents: boolean;
+  selectedPlanet: string | null;
 
   setCurrentTime: (time: number) => void;
   setSpeedMultiplier: (speed: number) => void;
@@ -34,6 +36,8 @@ interface SimulationState {
   setCameraMovement: (movement: { x: number, y: number, z: number }) => void;
   setCameraRotation: (rotation: { x: number, y: number }) => void;
   setShowDatePicker: (show: boolean) => void;
+  setShowAstroEvents: (show: boolean) => void;
+  setSelectedPlanet: (planet: string | null) => void;
 }
 
 export const useSimulation = create<SimulationState>((set) => ({
@@ -49,6 +53,8 @@ export const useSimulation = create<SimulationState>((set) => ({
   cameraMovement: { x: 0, y: 0, z: 0 },
   cameraRotation: { x: 0, y: 0 },
   showDatePicker: false,
+  showAstroEvents: false,
+  selectedPlanet: null,
   
   setCurrentTime: (time) => set({ currentTime: time }),
   setSpeedMultiplier: (speed) => set({ speedMultiplier: speed }),
@@ -70,6 +76,8 @@ export const useSimulation = create<SimulationState>((set) => ({
   setCameraMovement: (movement) => set({ cameraMovement: movement }),
   setCameraRotation: (rotation) => set({ cameraRotation: rotation }),
   setShowDatePicker: (show) => set({ showDatePicker: show }),
+  setShowAstroEvents: (show) => set({ showAstroEvents: show }),
+  setSelectedPlanet: (planet) => set({ selectedPlanet: planet }),
 }));
 
 

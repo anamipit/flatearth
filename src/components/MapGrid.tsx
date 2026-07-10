@@ -66,9 +66,9 @@ export function MapGrid() {
         <Text position={[MAP_RADIUS + 0.5, 0, 0]} fontSize={0.8} color="#94a3b8" anchorX="center" anchorY="middle">90°E</Text>
         <Text position={[-(MAP_RADIUS + 0.5), 0, 0]} fontSize={0.8} color="#94a3b8" anchorX="center" anchorY="middle">90°W</Text>
         
-        <Text position={[cancerRadius, 0, 0.2]} fontSize={0.3} color="#fca5a5" opacity={0.8}>Cancer</Text>
-        <Text position={[eqRadius, 0, 0.2]} fontSize={0.3} color="#fcd34d" opacity={0.8}>Equator</Text>
-        <Text position={[capricornRadius, 0, 0.2]} fontSize={0.3} color="#6ee7b7" opacity={0.8}>Capricorn</Text>
+        <Text position={[cancerRadius, 0, 0.2]} fontSize={0.3} color="#fca5a5" fillOpacity={0.8}>Cancer</Text>
+        <Text position={[eqRadius, 0, 0.2]} fontSize={0.3} color="#fcd34d" fillOpacity={0.8}>Equator</Text>
+        <Text position={[capricornRadius, 0, 0.2]} fontSize={0.3} color="#6ee7b7" fillOpacity={0.8}>Capricorn</Text>
       </group>
     </group>
   );

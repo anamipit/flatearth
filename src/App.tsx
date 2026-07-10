@@ -13,6 +13,8 @@ import { Planets } from './components/Planets';
 import { Constellations } from './components/Constellations';
 import { LocationPin } from './components/LocationPin';
 import { DatePickerModal } from './components/DatePickerModal';
+import { AstroEventsModal } from './components/AstroEventsModal';
+import { AstroStats } from './components/AstroStats';
 import { MAP_RADIUS } from './lib/astronomy';
 import { useSimulation } from './store/useSimulation';
 
@@ -20,6 +22,8 @@ export default function App() {
   const orbitRef = useRef<any>(null);
   const showDatePicker = useSimulation(state => state.showDatePicker);
   const setShowDatePicker = useSimulation(state => state.setShowDatePicker);
+  const showAstroEvents = useSimulation(state => state.showAstroEvents);
+  const setShowAstroEvents = useSimulation(state => state.setShowAstroEvents);
 
   return (
     <div className="w-full h-screen bg-zinc-950 overflow-hidden relative">
@@ -33,6 +37,12 @@ export default function App() {
         <DatePickerModal onClose={() => setShowDatePicker(false)} />
       )}
       
+      {showAstroEvents && (
+        <AstroEventsModal onClose={() => setShowAstroEvents(false)} />
+      )}
+      
+      <AstroStats />
+
       <Canvas
         camera={{ position: [0, 15, 25], fov: 60 }}
         className="w-full h-full"

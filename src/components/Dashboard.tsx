@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, ChevronUp, ChevronDown, Sparkles, Sunrise, Sunset } from 'lucide-react';
+import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, ChevronUp, ChevronDown, Sparkles, Sunrise, Sunset, Calendar } from 'lucide-react';
 import { useSimulation } from '../store/useSimulation';
-import { getSunPosition, getMoonPosition, getGMST, getSubpoint, getAngularDistance, getRiseSetTimes } from '../lib/astronomy';
+import { getSunPosition, getMoonPosition, getGMST, getSubpoint, getAngularDistance, getRiseSetTimes, getPlanetStats } from '../lib/astronomy';
 import { format } from 'date-fns';
 import { EclipseTableModal } from './EclipseTableModal';
 
@@ -20,7 +20,8 @@ export function Dashboard() {
     setSunHeight,
     showConstellations,
     setShowConstellations,
-    targetLocation
+    targetLocation,
+    setShowAstroEvents
   } = useSimulation();
 
   const [eclipseModal, setEclipseModal] = useState<{type: 'solar' | 'lunar', scope: 'global' | 'local'} | null>(null);
@@ -33,6 +34,7 @@ export function Dashboard() {
   
   const sunPos = getSunPosition(date);
   const sunSub = getSubpoint(sunPos.ra, sunPos.dec, gmst);
+  const planetStats = getPlanetStats(date);
   
   const moonPos = getMoonPosition(date);
   const moonSub = getSubpoint(moonPos.ra, moonPos.dec, gmst);
@@ -123,36 +125,45 @@ export function Dashboard() {
               <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50">
                 <div className="text-xs text-zinc-400 mb-2 flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.8)]"></span>
-                  Astronomis
+                  Matahari (Eklipika)
                 </div>
                 <div className="font-mono text-xs space-y-1">
-                  <div>RA: {formatRA(sunPos.ra)}</div>
-                  <div>Dec: {formatCoord(sunPos.dec, true)}</div>
+                  <div>Bujur: {planetStats.sun.elon.toFixed(2)}°</div>
+                  <div>Lintang: {planetStats.sun.elat.toFixed(4)}°</div>
                 </div>
               </div>
             </div>
             
-            {/* Eclipse Finders */}
+            {/* Eclipse Finders & Astro Events */}
             <div className="space-y-2">
-              <div className="text-xs text-zinc-400">Pencarian Gerhana Matahari</div>
+              <div className="text-xs text-zinc-400">Pencarian & Peristiwa</div>
               <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => setShowAstroEvents(true)} 
+                  className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-emerald-700/50 text-emerald-400"
+                >
+                  <Calendar size={12} />
+                  Kalender
+                </button>
                 <button 
                   onClick={() => setEclipseModal({type: 'solar', scope: 'global'})} 
                   className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-zinc-700"
                 >
                   <Eclipse size={12} className="text-yellow-400" />
-                  Global
+                  Gerhana
                 </button>
-                {targetLocation && (
+              </div>
+              {targetLocation && (
+                <div className="pt-1">
                   <button 
                     onClick={() => setEclipseModal({type: 'solar', scope: 'local'})} 
-                    className="w-full flex flex-col items-center justify-center gap-0.5 bg-zinc-800 hover:bg-zinc-700 text-[10px] py-1 rounded-md transition-colors border border-emerald-700/50 text-emerald-400"
+                    className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-[10px] py-1.5 rounded-md transition-colors border border-emerald-700/50 text-emerald-400"
                   >
-                    <div className="flex items-center gap-1"><Eclipse size={10} /> Terlihat Di</div>
-                    <div className="truncate max-w-[120px] font-medium">{targetLocation.name}</div>
+                    <Eclipse size={10} /> 
+                    <span className="truncate max-w-[150px]">Gerhana di {targetLocation.name}</span>
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Scale Controls */}

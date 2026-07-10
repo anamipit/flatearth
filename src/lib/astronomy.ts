@@ -1,4 +1,4 @@
-import { Equator, SiderealTime, Body, AstroTime, Observer, SearchGlobalSolarEclipse, NextGlobalSolarEclipse, SearchLunarEclipse, NextLunarEclipse, SearchLocalSolarEclipse, NextLocalSolarEclipse, MoonPhase as AstroMoonPhase, Illumination, SearchRiseSet, Horizon } from 'astronomy-engine';
+import { Equator, SiderealTime, Body, AstroTime, Observer, SearchGlobalSolarEclipse, NextGlobalSolarEclipse, SearchLunarEclipse, NextLunarEclipse, SearchLocalSolarEclipse, NextLocalSolarEclipse, MoonPhase as AstroMoonPhase, Illumination, SearchRiseSet, Horizon, Seasons, SearchMoonQuarter, NextMoonQuarter, SearchLunarApsis, NextLunarApsis, SunPosition, AngleFromSun, Elongation, SearchPlanetApsis, NextPlanetApsis, SearchPeakMagnitude, SearchMaxElongation, SearchRelativeLongitude } from 'astronomy-engine';
 
 const rad = Math.PI / 180;
 const deg = 180 / Math.PI;
@@ -191,3 +191,123 @@ export function getRiseSetTimes(date: Date, lat: number, lon: number) {
   }
 }
 
+
+export function getSeasons(year: number) {
+  try {
+    const seasons = Seasons(year);
+    return {
+      marEquinox: seasons.mar_equinox.date,
+      junSolstice: seasons.jun_solstice.date,
+      sepEquinox: seasons.sep_equinox.date,
+      decSolstice: seasons.dec_solstice.date
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+export function getNextMoonQuarters(startDate: Date, count: number = 4) {
+  let time = new AstroTime(startDate);
+  const quarters = [];
+  try {
+    let nxt = SearchMoonQuarter(time);
+    for (let i = 0; i < count; i++) {
+      quarters.push({
+        date: nxt.time.date,
+        quarter: nxt.quarter // 0=New, 1=First, 2=Full, 3=Third
+      });
+      nxt = NextMoonQuarter(nxt);
+    }
+    return quarters;
+  } catch (e) {
+    return [];
+  }
+}
+
+export function getNextLunarApsides(startDate: Date, count: number = 4) {
+  let time = new AstroTime(startDate);
+  const apsides = [];
+  try {
+    let nxt = SearchLunarApsis(time);
+    for (let i = 0; i < count; i++) {
+      apsides.push({
+        date: nxt.time.date,
+        kind: nxt.kind, // 0=Perigee (closest), 1=Apogee (farthest)
+        dist_km: nxt.dist_km
+      });
+      nxt = NextLunarApsis(nxt);
+    }
+    return apsides;
+  } catch (e) {
+    return [];
+  }
+}
+
+export function getPlanetStats(date: Date) {
+  const time = new AstroTime(date);
+  const sunPos = SunPosition(time);
+  
+  const planets = [Body.Mercury, Body.Venus, Body.Mars, Body.Jupiter, Body.Saturn, Body.Uranus, Body.Neptune];
+  const planetStats = planets.map(body => {
+    const illum = Illumination(body, time);
+    const angle = AngleFromSun(body, time);
+    const elong = Elongation(body, time);
+    
+    return {
+      name: body,
+      mag: illum.mag,
+      angle: angle,
+      elongation: elong.elongation
+    };
+  });
+  
+  return {
+    sun: {
+      elon: sunPos.elon,
+      elat: sunPos.elat
+    },
+    planets: planetStats
+  };
+}
+
+export function getPlanetEvents(startDate: Date) {
+  const time = new AstroTime(startDate);
+  const events = [];
+  const planets = [Body.Mercury, Body.Venus, Body.Mars, Body.Jupiter, Body.Saturn, Body.Uranus, Body.Neptune];
+  
+  try {
+    for (const body of planets) {
+      // Apsis
+      try {
+        const apsis = SearchPlanetApsis(body, time);
+        events.push({ body, type: 'Apsis', date: apsis.time.date, details: apsis.kind === 0 ? 'Perihelion (Terdekat)' : 'Aphelion (Terjauh)' });
+      } catch (e) {}
+
+      // Max Elongation (only for inner planets)
+      if (body === Body.Mercury || body === Body.Venus) {
+        try {
+          const maxElong = SearchMaxElongation(body, time);
+          events.push({ body, type: 'Max Elongation', date: maxElong.time.date, details: maxElong.visibility === 'morning' ? 'Pagi (Barat)' : 'Sore (Timur)' });
+        } catch (e) {}
+      }
+
+      // Opposition & Conjunction (for outer planets, opposition is possible)
+      if (body !== Body.Mercury && body !== Body.Venus) {
+        try {
+          const opp = SearchRelativeLongitude(body, 180, time);
+          events.push({ body, type: 'Oposisi', date: opp.date, details: 'Terlihat Sepanjang Malam' });
+        } catch (e) {}
+      }
+      
+      try {
+        const conj = SearchRelativeLongitude(body, 0, time);
+        events.push({ body, type: 'Konjungsi', date: conj.date, details: 'Tertutup Matahari' });
+      } catch (e) {}
+    }
+    
+    // Sort by date
+    return events.sort((a, b) => a.date.getTime() - b.date.getTime());
+  } catch (e) {
+    return [];
+  }
+}

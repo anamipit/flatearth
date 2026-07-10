@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Sphere, Html } from '@react-three/drei';
@@ -16,8 +16,9 @@ const PLANETS = [
 ];
 
 export function Planets() {
-  const { showConstellations } = useSimulation(); // Reuse this toggle for planets? Or create a new one? We'll always show them for now.
+  const { showConstellations, selectedPlanet, setSelectedPlanet } = useSimulation(); // Reuse this toggle for planets? Or create a new one? We'll always show them for now.
   const planetRefs = useRef<{ [key: string]: THREE.Group | null }>({});
+  const [hoveredPlanet, setHoveredPlanet] = useState<string | null>(null);
 
   useFrame(() => {
     const date = new Date(useSimulation.getState().currentTime);
@@ -31,8 +32,8 @@ export function Planets() {
         
         const ref = planetRefs.current[planet.name];
         if (ref) {
-          // Place them at similar height as sun/moon or stars
-          ref.position.set(flat.x, 3.5, flat.z);
+          // Place them slightly higher than constellations (12.0)
+          ref.position.set(flat.x, 12.5, flat.z);
         }
       }
     });
@@ -44,20 +45,37 @@ export function Planets() {
         <group 
           key={planet.name} 
           ref={(el) => (planetRefs.current[planet.name] = el)}
+          onPointerEnter={(e) => { e.stopPropagation(); setHoveredPlanet(planet.name); }}
+          onPointerLeave={(e) => { e.stopPropagation(); setHoveredPlanet(null); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (selectedPlanet === planet.name) {
+              setSelectedPlanet(null);
+            } else {
+              setSelectedPlanet(planet.name);
+            }
+          }}
         >
           <Sphere args={[planet.size, 16, 16]}>
-            <meshStandardMaterial color={planet.color} roughness={0.8} metalness={0.2} />
+            <meshStandardMaterial color={planet.color} roughness={0.8} metalness={0.2} emissive={selectedPlanet === planet.name ? planet.color : '#000000'} emissiveIntensity={selectedPlanet === planet.name ? 0.5 : 0} />
           </Sphere>
           {/* Subtle glow */}
           <Sphere args={[planet.size * 2, 16, 16]}>
-            <meshBasicMaterial color={planet.color} transparent opacity={0.3} blending={THREE.AdditiveBlending} />
+            <meshBasicMaterial color={planet.color} transparent opacity={selectedPlanet === planet.name ? 0.6 : 0.3} blending={THREE.AdditiveBlending} />
           </Sphere>
           
-          <Html position={[0, 0.4, 0]} center zIndexRange={[100, 0]}>
-            <div className="bg-zinc-950/80 backdrop-blur text-xs px-2 py-0.5 rounded border border-zinc-800 shadow text-zinc-300 select-none whitespace-nowrap" style={{ borderColor: planet.color + '40', color: planet.color }}>
-              {planet.label}
-            </div>
-          </Html>
+          {/* Invisible larger hitbox for easier hovering */}
+          <Sphere args={[0.5, 16, 16]}>
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </Sphere>
+          
+          {(hoveredPlanet === planet.name || selectedPlanet === planet.name) && (
+            <Html position={[0, 0.4, 0]} center zIndexRange={[100, 0]}>
+              <div className="bg-zinc-950/90 backdrop-blur text-xs px-2 py-0.5 rounded border shadow font-medium whitespace-nowrap" style={{ borderColor: planet.color + '80', color: planet.color }}>
+                {planet.label}
+              </div>
+            </Html>
+          )}
         </group>
       ))}
     </group>
