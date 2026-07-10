@@ -9,12 +9,17 @@ import { CameraController } from './components/CameraController';
 import { CameraNavigation } from './components/CameraNavigation';
 import { MapGrid } from './components/MapGrid';
 import { CelestialBodies } from './components/CelestialBodies';
+import { Planets } from './components/Planets';
 import { Constellations } from './components/Constellations';
 import { LocationPin } from './components/LocationPin';
+import { DatePickerModal } from './components/DatePickerModal';
 import { MAP_RADIUS } from './lib/astronomy';
+import { useSimulation } from './store/useSimulation';
 
 export default function App() {
   const orbitRef = useRef<any>(null);
+  const showDatePicker = useSimulation(state => state.showDatePicker);
+  const setShowDatePicker = useSimulation(state => state.setShowDatePicker);
 
   return (
     <div className="w-full h-screen bg-zinc-950 overflow-hidden relative">
@@ -23,6 +28,10 @@ export default function App() {
       <MoonPanel />
       <PlaybackControls />
       <CameraNavigation />
+      
+      {showDatePicker && (
+        <DatePickerModal onClose={() => setShowDatePicker(false)} />
+      )}
       
       <Canvas
         camera={{ position: [0, 15, 25], fov: 60 }}
@@ -37,6 +46,7 @@ export default function App() {
           
           <MapGrid />
           <CelestialBodies />
+          <Planets />
           <Constellations />
           <LocationPin />
           

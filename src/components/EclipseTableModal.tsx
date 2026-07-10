@@ -1,16 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { X, PlayCircle, Search } from 'lucide-react';
 import { format } from 'date-fns';
-import { findEclipsesInRange } from '../lib/astronomy';
+import { findEclipsesInRange, findLocalEclipsesInRange } from '../lib/astronomy';
 import { useSimulation } from '../store/useSimulation';
 
 interface EclipseTableModalProps {
   type: 'solar' | 'lunar';
+  scope: 'global' | 'local';
   onClose: () => void;
 }
 
-export function EclipseTableModal({ type, onClose }: EclipseTableModalProps) {
-  const { setCurrentTime, isPlaying, togglePlay } = useSimulation();
+export function EclipseTableModal({ type, scope, onClose }: EclipseTableModalProps) {
+  const { setCurrentTime, isPlaying, togglePlay, targetLocation } = useSimulation();
   
   const currentYear = new Date().getFullYear();
   const [startYear, setStartYear] = useState<number>(currentYear - 5);
@@ -23,8 +24,14 @@ export function EclipseTableModal({ type, onClose }: EclipseTableModalProps) {
   const eclipses = useMemo(() => {
     const startDate = new Date(`${startYear}-01-01T00:00:00Z`);
     const endDate = new Date(`${endYear}-12-31T23:59:59Z`);
-    return findEclipsesInRange(startDate, endDate, type);
-  }, [type, searchTrigger]);
+    
+    if (scope === 'local' && targetLocation) {
+      return findLocalEclipsesInRange(startDate, endDate, type, targetLocation.lat, targetLocation.lon);
+    } else {
+      return findEclipsesInRange(startDate, endDate, type);
+    }
+  }, [type, scope, targetLocation, searchTrigger]);
+
 
   const handleJumpToEclipse = (date: Date) => {
     setCurrentTime(date.getTime());
@@ -37,7 +44,7 @@ export function EclipseTableModal({ type, onClose }: EclipseTableModalProps) {
       <div className="bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
         <div className="flex items-center justify-between p-4 border-b border-zinc-800/80 bg-zinc-900/50">
           <h2 className="text-lg font-medium text-white flex items-center gap-2">
-            {type === 'solar' ? 'Data Gerhana Matahari' : 'Data Gerhana Bulan'}
+            {type === 'solar' ? 'Data Gerhana Matahari' : 'Data Gerhana Bulan'} {scope === 'local' && targetLocation ? `(${targetLocation.name})` : '(Global)'}
           </h2>
           <button 
             onClick={onClose}

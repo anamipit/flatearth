@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { useSimulation } from '../store/useSimulation';
 
 export function DatePickerModal({ onClose }: { onClose: () => void }) {
-  const { currentTime, setCurrentTime, togglePlay, isPlaying } = useSimulation();
+  const { currentTime, setCurrentTime, togglePlay, isPlaying, targetLocation } = useSimulation();
   
   // Format the current time to YYYY-MM-DDThh:mm string as UTC
   const dateObj = new Date(currentTime);
@@ -20,6 +20,29 @@ export function DatePickerModal({ onClose }: { onClose: () => void }) {
       onClose();
     }
   };
+
+  let localTimeDisplay = null;
+  if (targetLocation && datetime) {
+    const inputTimeMs = new Date(datetime + ':00Z').getTime();
+    if (!isNaN(inputTimeMs)) {
+      const tzOffsetHours = Math.round(targetLocation.lon / 15);
+      const localTimeMs = inputTimeMs + (tzOffsetHours * 3600 * 1000);
+      const localDate = new Date(localTimeMs);
+      
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const formatUTC = (d: Date) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+      const offsetStr = tzOffsetHours >= 0 ? `+${tzOffsetHours}` : `${tzOffsetHours}`;
+      
+      localTimeDisplay = (
+        <div className="mt-4 p-3 bg-zinc-900/50 rounded-lg border border-zinc-800/50">
+          <div className="text-xs text-zinc-400 mb-1">Ekuivalen Waktu Lokal:</div>
+          <div className="text-sm text-blue-400 font-mono">
+            {formatUTC(localDate)} ({targetLocation.name}, UTC{offsetStr})
+          </div>
+        </div>
+      );
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-sans">
@@ -46,6 +69,7 @@ export function DatePickerModal({ onClose }: { onClose: () => void }) {
               className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
               required
             />
+            {localTimeDisplay}
           </div>
           <button 
             type="submit"

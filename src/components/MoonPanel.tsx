@@ -32,10 +32,11 @@ const MoonPhaseSVG = ({ phaseAngle }: { phaseAngle: number }) => {
 };
 
 export function MoonPanel() {
-  const { currentTime, moonScale, moonHeight, setMoonScale, setMoonHeight } = useSimulation();
+  const { currentTime, moonScale, moonHeight, setMoonScale, setMoonHeight, targetLocation } = useSimulation();
+  
   const date = new Date(currentTime);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [eclipseModal, setEclipseModal] = useState<'solar' | 'lunar' | null>(null);
+  const [eclipseModal, setEclipseModal] = useState<{type: 'solar' | 'lunar', scope: 'global' | 'local'} | null>(null);
   
   const { phaseAngle, age, illumination, phaseName } = getMoonPhase(date);
   
@@ -118,10 +119,27 @@ export function MoonPanel() {
             </div>
             
             {/* Eclipse Finders */}
-            <button onClick={() => setEclipseModal('lunar')} className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-zinc-700">
-              <Moon size={12} className="text-red-400" />
-              Gerhana Bulan
-            </button>
+            <div className="space-y-2">
+              <div className="text-xs text-zinc-400">Pencarian Gerhana Bulan</div>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => setEclipseModal({type: 'lunar', scope: 'global'})} 
+                  className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-zinc-700"
+                >
+                  <Moon size={12} className="text-red-400" />
+                  Global
+                </button>
+                {targetLocation && (
+                  <button 
+                    onClick={() => setEclipseModal({type: 'lunar', scope: 'local'})} 
+                    className="w-full flex flex-col items-center justify-center gap-0.5 bg-zinc-800 hover:bg-zinc-700 text-[10px] py-1 rounded-md transition-colors border border-indigo-700/50 text-indigo-400"
+                  >
+                    <div className="flex items-center gap-1"><Moon size={10} /> Terlihat Di</div>
+                    <div className="truncate max-w-[120px] font-medium">{targetLocation.name}</div>
+                  </button>
+                )}
+              </div>
+            </div>
 
             {/* Scale Controls */}
             <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50 space-y-3">
@@ -159,7 +177,8 @@ export function MoonPanel() {
       
       {eclipseModal && (
         <EclipseTableModal 
-          type={eclipseModal} 
+          type={eclipseModal.type} 
+          scope={eclipseModal.scope}
           onClose={() => setEclipseModal(null)} 
         />
       )}

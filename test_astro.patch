@@ -1,0 +1,16 @@
+--- src/lib/astronomy.ts
++++ src/lib/astronomy.ts
+@@ -21,6 +21,12 @@
+   return { ra: eq.ra * 15, dec: eq.dec };
+ }
+ 
++// Calculate Planet's Right Ascension and Declination
++export function getPlanetPosition(body: Body, date: Date) {
++  const time = new AstroTime(date);
++  const eq = Equator(body, time, defaultObserver, true, true);
++  return { ra: eq.ra * 15, dec: eq.dec };
++}
++
+ // Calculate Greenwich Mean Sidereal Time (GMST) in degrees
+ export function getGMST(date: Date) {
+   const time = new AstroTime(date);

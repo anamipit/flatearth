@@ -1,10 +1,10 @@
 import React from 'react';
-import { Play, Pause, Rewind, FastForward } from 'lucide-react';
+import { Play, Pause, Rewind, FastForward, Calendar } from 'lucide-react';
 import { useSimulation } from '../store/useSimulation';
 import { format } from 'date-fns';
 
 export function PlaybackControls() {
-  const { currentTime, speedMultiplier, isPlaying, setSpeedMultiplier, togglePlay, targetLocation } = useSimulation();
+  const { currentTime, speedMultiplier, isPlaying, setSpeedMultiplier, togglePlay, targetLocation, setShowDatePicker } = useSimulation();
 
   const speeds = [
     { value: 1, label: '1x' },
@@ -15,10 +15,10 @@ export function PlaybackControls() {
   ];
 
   const date = new Date(currentTime);
-
+  
   const pad = (n: number) => n.toString().padStart(2, '0');
   const formatUTC = (d: Date) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
-
+  
   let localTimeDisplay = null;
   if (targetLocation) {
     const tzOffsetHours = Math.round(targetLocation.lon / 15);
@@ -39,15 +39,24 @@ export function PlaybackControls() {
   return (
     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 font-sans flex flex-col items-center gap-3">
       {/* Time Info */}
-      <div className="bg-zinc-950/80 backdrop-blur-md border border-zinc-800 rounded-full px-6 py-2 shadow-xl flex items-center justify-center max-w-[95vw] overflow-x-auto custom-scrollbar">
+      <button 
+        onClick={() => setShowDatePicker(true)}
+        className="bg-zinc-950/80 hover:bg-zinc-900/90 transition-colors backdrop-blur-md border border-zinc-800 rounded-full px-6 py-2 shadow-xl flex items-center justify-center max-w-[95vw] overflow-x-auto custom-scrollbar group cursor-pointer"
+        title="Pilih Tanggal & Waktu"
+      >
         <div className="flex items-center gap-2 whitespace-nowrap">
           <div className="text-xs text-zinc-400">Simulasi (UTC):</div>
           <div className="text-base font-mono text-emerald-400 font-medium">
             {formatUTC(date)}
           </div>
         </div>
+        
         {localTimeDisplay}
-      </div>
+        
+        <div className="ml-4 pl-4 border-l border-zinc-700 text-zinc-500 group-hover:text-yellow-400 transition-colors flex items-center justify-center">
+          <Calendar size={16} />
+        </div>
+      </button>
 
       <div className="bg-zinc-950/90 backdrop-blur-md border border-zinc-800 rounded-full py-2 px-4 shadow-2xl flex items-center gap-4">
         

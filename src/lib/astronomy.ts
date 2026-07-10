@@ -1,4 +1,4 @@
-import { Equator, SiderealTime, Body, AstroTime, Observer, SearchGlobalSolarEclipse, NextGlobalSolarEclipse, SearchLunarEclipse, NextLunarEclipse, MoonPhase as AstroMoonPhase, Illumination, SearchRiseSet } from 'astronomy-engine';
+import { Equator, SiderealTime, Body, AstroTime, Observer, SearchGlobalSolarEclipse, NextGlobalSolarEclipse, SearchLunarEclipse, NextLunarEclipse, SearchLocalSolarEclipse, NextLocalSolarEclipse, MoonPhase as AstroMoonPhase, Illumination, SearchRiseSet, Horizon } from 'astronomy-engine';
 
 const rad = Math.PI / 180;
 const deg = 180 / Math.PI;
@@ -19,6 +19,15 @@ export function getSunPosition(date: Date) {
 export function getMoonPosition(date: Date) {
   const time = new AstroTime(date);
   const eq = Equator(Body.Moon, time, defaultObserver, true, true);
+  return { ra: eq.ra * 15, dec: eq.dec };
+}
+
+// Calculate Planet's Right Ascension and Declination
+export function getPlanetPosition(bodyName: string, date: Date) {
+  const time = new AstroTime(date);
+  const body = (Body as any)[bodyName];
+  if (!body) return null;
+  const eq = Equator(body, time, defaultObserver, true, true);
   return { ra: eq.ra * 15, dec: eq.dec };
 }
 
@@ -122,6 +131,39 @@ export function findEclipsesInRange(startDate: Date, endDate: Date, type: 'solar
     }
   } catch (e) {
     console.error("Error finding eclipses:", e);
+  }
+  
+  return eclipses;
+}
+
+export function findLocalEclipsesInRange(startDate: Date, endDate: Date, type: 'solar' | 'lunar', lat: number, lon: number): Date[] {
+  let time = new AstroTime(startDate);
+  const endTime = endDate.getTime();
+  const eclipses: Date[] = [];
+  const obs = new Observer(lat, lon, 0);
+  
+  try {
+    if (type === 'solar') {
+      let eclipse = SearchLocalSolarEclipse(time, obs);
+      while (eclipse && eclipse.peak.time.date.getTime() < endTime) {
+        if (eclipse.peak.altitude > 0 || (eclipse.partial_begin && eclipse.partial_begin.altitude > 0) || (eclipse.partial_end && eclipse.partial_end.altitude > 0)) {
+          eclipses.push(eclipse.peak.time.date);
+        }
+        eclipse = NextLocalSolarEclipse(eclipse.peak.time, obs);
+      }
+    } else {
+      let eclipse = SearchLunarEclipse(time);
+      while (eclipse && eclipse.peak.date.getTime() < endTime) {
+        let eq = Equator(Body.Moon, eclipse.peak, obs, true, true);
+        let hor = Horizon(eclipse.peak, obs, eq.ra, eq.dec, 'normal');
+        if (hor.altitude > -5) { // Visible or close to horizon
+          eclipses.push(eclipse.peak.date);
+        }
+        eclipse = NextLunarEclipse(eclipse.peak);
+      }
+    }
+  } catch (e) {
+    console.error("Error finding local eclipses:", e);
   }
   
   return eclipses;

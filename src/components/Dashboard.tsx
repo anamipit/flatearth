@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, Calendar, ChevronUp, ChevronDown, Sparkles, Sunrise, Sunset } from 'lucide-react';
+import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, ChevronUp, ChevronDown, Sparkles, Sunrise, Sunset } from 'lucide-react';
 import { useSimulation } from '../store/useSimulation';
-import { getSunPosition, getMoonPosition, getGMST, getSubpoint, getAngularDistance, findNextEclipse, getRiseSetTimes } from '../lib/astronomy';
+import { getSunPosition, getMoonPosition, getGMST, getSubpoint, getAngularDistance, getRiseSetTimes } from '../lib/astronomy';
 import { format } from 'date-fns';
 import { EclipseTableModal } from './EclipseTableModal';
-import { DatePickerModal } from './DatePickerModal';
 
 export function Dashboard() {
   const { 
@@ -23,8 +22,8 @@ export function Dashboard() {
     setShowConstellations,
     targetLocation
   } = useSimulation();
-  const [eclipseModal, setEclipseModal] = useState<'solar' | 'lunar' | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const [eclipseModal, setEclipseModal] = useState<{type: 'solar' | 'lunar', scope: 'global' | 'local'} | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
   
   const [riseSetTimes, setRiseSetTimes] = useState<{sunRise: Date|null, sunSet: Date|null, moonRise: Date|null, moonSet: Date|null} | null>(null);
@@ -49,7 +48,6 @@ export function Dashboard() {
       setRiseSetTimes(null);
     }
   }, [targetLocation, date.getUTCDate(), date.getUTCMonth(), date.getUTCFullYear()]);
-
   
   // Check for conjunctions/eclipses
   const distance = getAngularDistance(sunSub.lat, sunSub.lon, moonSub.lat, moonSub.lon);
@@ -83,6 +81,14 @@ export function Dashboard() {
     return `${h}h ${m}m ${s}s`;
   };
 
+  const formatTime = (d: Date | null) => {
+    if (!d) return "-";
+    // Get time in UTC
+    const h = d.getUTCHours().toString().padStart(2, '0');
+    const m = d.getUTCMinutes().toString().padStart(2, '0');
+    return `${h}:${m}`;
+  };
+
   return (
     <>
       <div className="absolute top-4 left-4 z-10 w-80 bg-zinc-950/80 backdrop-blur-md border border-zinc-800 rounded-xl p-5 text-zinc-100 shadow-2xl font-sans transition-all duration-300">
@@ -90,14 +96,9 @@ export function Dashboard() {
           <h1 className="text-lg font-medium tracking-tight text-white">Flat Earth Tracker</h1>
           <div className="flex gap-2">
             {!isMinimized && (
-              <>
-                <button onClick={() => setShowDatePicker(true)} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-md transition-colors" title="Pilih Tanggal & Waktu">
-                  <Calendar size={14} />
-                </button>
-                <button onClick={resetToNow} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-md transition-colors" title="Kembali ke Sekarang">
-                  <RotateCcw size={14} />
-                </button>
-              </>
+              <button onClick={resetToNow} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-md transition-colors" title="Kembali ke Sekarang">
+                <RotateCcw size={14} />
+              </button>
             )}
             <button onClick={() => setIsMinimized(!isMinimized)} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-md transition-colors" title={isMinimized ? "Perbesar" : "Perkecil"}>
               {isMinimized ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
@@ -132,10 +133,27 @@ export function Dashboard() {
             </div>
             
             {/* Eclipse Finders */}
-            <button onClick={() => setEclipseModal('solar')} className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-zinc-700">
-              <Eclipse size={12} className="text-yellow-400" />
-              Gerhana Matahari
-            </button>
+            <div className="space-y-2">
+              <div className="text-xs text-zinc-400">Pencarian Gerhana Matahari</div>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => setEclipseModal({type: 'solar', scope: 'global'})} 
+                  className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-zinc-700"
+                >
+                  <Eclipse size={12} className="text-yellow-400" />
+                  Global
+                </button>
+                {targetLocation && (
+                  <button 
+                    onClick={() => setEclipseModal({type: 'solar', scope: 'local'})} 
+                    className="w-full flex flex-col items-center justify-center gap-0.5 bg-zinc-800 hover:bg-zinc-700 text-[10px] py-1 rounded-md transition-colors border border-emerald-700/50 text-emerald-400"
+                  >
+                    <div className="flex items-center gap-1"><Eclipse size={10} /> Terlihat Di</div>
+                    <div className="truncate max-w-[120px] font-medium">{targetLocation.name}</div>
+                  </button>
+                )}
+              </div>
+            </div>
 
             {/* Scale Controls */}
             <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50 space-y-3">
@@ -192,20 +210,20 @@ export function Dashboard() {
             {targetLocation && riseSetTimes && (
               <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50 space-y-2">
                 <div className="text-xs text-emerald-400 font-medium border-b border-zinc-800/50 pb-1 mb-2">
-                  📍 {targetLocation.name}
+                  📍 {targetLocation.name} (UTC)
                 </div>
                 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
                     <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunrise size={10} className="text-yellow-500"/> Matahari Terbit</div>
                     <div className="text-xs font-mono text-zinc-300 mt-1">
-                      {riseSetTimes.sunRise ? format(riseSetTimes.sunRise, "HH:mm") : "-"}
+                      {formatTime(riseSetTimes.sunRise)}
                     </div>
                   </div>
                   <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
                     <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunset size={10} className="text-orange-500"/> Matahari Terbenam</div>
                     <div className="text-xs font-mono text-zinc-300 mt-1">
-                      {riseSetTimes.sunSet ? format(riseSetTimes.sunSet, "HH:mm") : "-"}
+                      {formatTime(riseSetTimes.sunSet)}
                     </div>
                   </div>
                 </div>
@@ -214,13 +232,13 @@ export function Dashboard() {
                   <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
                     <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunrise size={10} className="text-blue-300"/> Bulan Terbit</div>
                     <div className="text-xs font-mono text-zinc-300 mt-1">
-                      {riseSetTimes.moonRise ? format(riseSetTimes.moonRise, "HH:mm") : "-"}
+                      {formatTime(riseSetTimes.moonRise)}
                     </div>
                   </div>
                   <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
                     <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunset size={10} className="text-indigo-400"/> Bulan Terbenam</div>
                     <div className="text-xs font-mono text-zinc-300 mt-1">
-                      {riseSetTimes.moonSet ? format(riseSetTimes.moonSet, "HH:mm") : "-"}
+                      {formatTime(riseSetTimes.moonSet)}
                     </div>
                   </div>
                 </div>
@@ -243,13 +261,10 @@ export function Dashboard() {
 
       {eclipseModal && (
         <EclipseTableModal 
-          type={eclipseModal} 
+          type={eclipseModal.type} 
+          scope={eclipseModal.scope}
           onClose={() => setEclipseModal(null)} 
         />
-      )}
-      
-      {showDatePicker && (
-        <DatePickerModal onClose={() => setShowDatePicker(false)} />
       )}
     </>
   );
