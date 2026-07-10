@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState, useEffect } from 'react';
 import { Activity, X, MapPin } from 'lucide-react';
 import { useSimulation } from '../store/useSimulation';
 import { getPlanetStats } from '../lib/astronomy';
@@ -72,7 +74,7 @@ export function AstroStats() {
             </div>
           )}
 
-          {planetData.name === 'Moon' && (
+          {(planetData.name === 'Moon' || planetData.name === 'Sun') && (
             <div className="bg-zinc-900/50 p-2 rounded border border-zinc-800/50">
               <div className="text-indigo-400 font-medium mb-1.5 border-b border-zinc-800 pb-1">Detail Fisik</div>
               <div className="grid grid-cols-2 gap-x-2 gap-y-2 font-mono text-[10px]">
@@ -98,3 +100,6 @@ export function AstroStats() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/components/AstroStats.tsx', code);

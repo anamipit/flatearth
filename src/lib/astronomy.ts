@@ -1,4 +1,4 @@
-import { Equator, SiderealTime, Body, AstroTime, Observer, SearchGlobalSolarEclipse, NextGlobalSolarEclipse, SearchLunarEclipse, NextLunarEclipse, SearchLocalSolarEclipse, NextLocalSolarEclipse, MoonPhase as AstroMoonPhase, Illumination, SearchRiseSet, Horizon, Seasons, SearchMoonQuarter, NextMoonQuarter, SearchLunarApsis, NextLunarApsis, SunPosition, AngleFromSun, Elongation, SearchPlanetApsis, NextPlanetApsis, SearchPeakMagnitude, SearchMaxElongation, SearchRelativeLongitude } from 'astronomy-engine';
+import { Equator, SiderealTime, Body, AstroTime, Observer, SearchGlobalSolarEclipse, NextGlobalSolarEclipse, SearchLunarEclipse, NextLunarEclipse, SearchLocalSolarEclipse, NextLocalSolarEclipse, MoonPhase as AstroMoonPhase, Illumination, SearchRiseSet, Horizon, Seasons, SearchMoonQuarter, NextMoonQuarter, SearchLunarApsis, NextLunarApsis, SunPosition, AngleFromSun, Elongation, SearchPlanetApsis, NextPlanetApsis, SearchPeakMagnitude, SearchMaxElongation, SearchRelativeLongitude, Constellation, JupiterMoons, SearchTransit, SearchMoonNode } from 'astronomy-engine';
 
 const rad = Math.PI / 180;
 const deg = 180 / Math.PI;
@@ -243,21 +243,55 @@ export function getNextLunarApsides(startDate: Date, count: number = 4) {
   }
 }
 
-export function getPlanetStats(date: Date) {
+export function getPlanetStats(date: Date, observerLat?: number, observerLon?: number) {
   const time = new AstroTime(date);
   const sunPos = SunPosition(time);
+  const obs = (observerLat !== undefined && observerLon !== undefined) ? new Observer(observerLat, observerLon, 0) : defaultObserver;
   
-  const planets = [Body.Mercury, Body.Venus, Body.Mars, Body.Jupiter, Body.Saturn, Body.Uranus, Body.Neptune];
+  const planets = [Body.Sun, Body.Mercury, Body.Venus, Body.Mars, Body.Jupiter, Body.Saturn, Body.Uranus, Body.Neptune, Body.Moon];
   const planetStats = planets.map(body => {
-    const illum = Illumination(body, time);
-    const angle = AngleFromSun(body, time);
-    const elong = Elongation(body, time);
+    const eq = Equator(body, time, defaultObserver, true, true);
+    let illum, angle = 0, elong = 0;
     
+    if (body === Body.Sun) {
+      illum = { mag: -26.74 }; // approximate apparent mag
+      angle = 0;
+      elong = 0;
+    } else if (body !== Body.Moon) {
+      illum = Illumination(body, time);
+      angle = AngleFromSun(body, time);
+      const elongData = Elongation(body, time);
+      elong = elongData.elongation;
+    } else {
+      illum = Illumination(Body.Moon, time);
+      const phaseAngle = AstroMoonPhase(time);
+      elong = phaseAngle;
+    }
+    
+    const constel = Constellation(eq.ra, eq.dec);
+    
+    let hor = null;
+    if (observerLat !== undefined && observerLon !== undefined) {
+      hor = Horizon(time, obs, eq.ra, eq.dec, 'normal');
+    }
+    
+    // For Jupiter moons
+    let moons = null;
+    if (body === Body.Jupiter) {
+      moons = JupiterMoons(time);
+    }
+
     return {
       name: body,
       mag: illum.mag,
       angle: angle,
-      elongation: elong.elongation
+      elongation: elong,
+      constellation: constel.name,
+      azimuth: hor ? hor.azimuth : null,
+      altitude: hor ? hor.altitude : null,
+      distanceKm: body === Body.Moon ? eq.dist * 149597870.7 : (body === Body.Sun ? eq.dist * 149597870.7 : null), // dist in AU -> km
+      illumination: body === Body.Moon ? illum.phase_fraction * 100 : null,
+      moons: moons
     };
   });
   
@@ -276,6 +310,12 @@ export function getPlanetEvents(startDate: Date) {
   const planets = [Body.Mercury, Body.Venus, Body.Mars, Body.Jupiter, Body.Saturn, Body.Uranus, Body.Neptune];
   
   try {
+    // Moon Node
+    try {
+      const node = SearchMoonNode(time);
+      events.push({ body: 'Bulan', type: 'Titik Simpul (Node)', date: node.time.date, details: node.kind === 0 ? 'Menaik (Ascending)' : 'Menurun (Descending)' });
+    } catch (e) {}
+
     for (const body of planets) {
       // Apsis
       try {
@@ -288,6 +328,14 @@ export function getPlanetEvents(startDate: Date) {
         try {
           const maxElong = SearchMaxElongation(body, time);
           events.push({ body, type: 'Max Elongation', date: maxElong.time.date, details: maxElong.visibility === 'morning' ? 'Pagi (Barat)' : 'Sore (Timur)' });
+        } catch (e) {}
+        
+        // Transits
+        try {
+          const trans = SearchTransit(body, time);
+          if (trans) {
+            events.push({ body, type: 'Transit', date: trans.peak.date, details: 'Transit Melintasi Matahari' });
+          }
         } catch (e) {}
       }
 

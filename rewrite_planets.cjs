@@ -1,4 +1,6 @@
-import React, { useRef, useState } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Sphere, Html } from '@react-three/drei';
@@ -47,7 +49,7 @@ export function Planets() {
         
         // Moons return state vectors in AU. We scale them so they are visible around Jupiter.
         // Scale 1 AU to say 10 units for visual spacing
-        const s = 100.0; 
+        const s = 15.0; 
         if (jupiterMoonsRef.current.io) {
           jupiterMoonsRef.current.io.position.set(moons.io.x * s, moons.io.y * s, moons.io.z * s);
         }
@@ -131,3 +133,6 @@ export function Planets() {
     </group>
   );
 }
+`;
+
+fs.writeFileSync('src/components/Planets.tsx', code);
