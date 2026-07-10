@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { X, PlayCircle } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { X, PlayCircle, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { findEclipsesInRange } from '../lib/astronomy';
 import { useSimulation } from '../store/useSimulation';
@@ -11,14 +11,20 @@ interface EclipseTableModalProps {
 
 export function EclipseTableModal({ type, onClose }: EclipseTableModalProps) {
   const { setCurrentTime, isPlaying, togglePlay } = useSimulation();
+  
+  const currentYear = new Date().getFullYear();
+  const [startYear, setStartYear] = useState<number>(currentYear - 5);
+  const [endYear, setEndYear] = useState<number>(currentYear + 10);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // We use state to trigger search explicitly to avoid lag when typing
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
   const eclipses = useMemo(() => {
-    // Look from 5 years ago to 10 years in the future
-    const now = Date.now();
-    const startDate = new Date(now - 5 * 365 * 86400000);
-    const endDate = new Date(now + 10 * 365 * 86400000);
+    const startDate = new Date(`${startYear}-01-01T00:00:00Z`);
+    const endDate = new Date(`${endYear}-12-31T23:59:59Z`);
     return findEclipsesInRange(startDate, endDate, type);
-  }, [type]);
+  }, [type, searchTrigger]);
 
   const handleJumpToEclipse = (date: Date) => {
     setCurrentTime(date.getTime());
@@ -41,7 +47,40 @@ export function EclipseTableModal({ type, onClose }: EclipseTableModalProps) {
           </button>
         </div>
         
-        <div className="p-0 overflow-y-auto custom-scrollbar flex-1">
+        <div className="p-4 border-b border-zinc-800/80 bg-zinc-900/30 flex items-end gap-3">
+          <div className="flex-1">
+            <label className="block text-xs text-zinc-400 mb-1">Dari Tahun</label>
+            <input 
+              type="number" 
+              value={startYear}
+              onChange={(e) => setStartYear(parseInt(e.target.value) || 1960)}
+              className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-xs text-zinc-400 mb-1">Sampai Tahun</label>
+            <input 
+              type="number" 
+              value={endYear}
+              onChange={(e) => setEndYear(parseInt(e.target.value) || 2050)}
+              className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            />
+          </div>
+          <button 
+            onClick={() => {
+              setIsSearching(true);
+              setTimeout(() => {
+                setSearchTrigger(prev => prev + 1);
+                setIsSearching(false);
+              }, 10); // Small delay to let UI render loading state if needed
+            }}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-md px-4 py-1.5 text-sm font-medium transition-colors flex items-center gap-2 h-[34px]"
+          >
+            {isSearching ? 'Mencari...' : 'Cari'}
+          </button>
+        </div>
+
+        <div className="p-0 overflow-y-auto custom-scrollbar flex-1 relative min-h-[200px]">
           <table className="w-full text-left text-sm text-zinc-300">
             <thead className="bg-zinc-900 text-zinc-400 sticky top-0">
               <tr>

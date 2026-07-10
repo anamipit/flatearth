@@ -1,9 +1,10 @@
 import React from 'react';
 import { Play, Pause, Rewind, FastForward } from 'lucide-react';
 import { useSimulation } from '../store/useSimulation';
+import { format } from 'date-fns';
 
 export function PlaybackControls() {
-  const { speedMultiplier, isPlaying, setSpeedMultiplier, togglePlay } = useSimulation();
+  const { currentTime, speedMultiplier, isPlaying, setSpeedMultiplier, togglePlay, targetLocation } = useSimulation();
 
   const speeds = [
     { value: 1, label: '1x' },
@@ -13,8 +14,41 @@ export function PlaybackControls() {
     { value: 86400, label: '1 hari/d' },
   ];
 
+  const date = new Date(currentTime);
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const formatUTC = (d: Date) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+
+  let localTimeDisplay = null;
+  if (targetLocation) {
+    const tzOffsetHours = Math.round(targetLocation.lon / 15);
+    const localTimeMs = currentTime + (tzOffsetHours * 3600 * 1000);
+    const localDate = new Date(localTimeMs);
+    const offsetStr = tzOffsetHours >= 0 ? `+${tzOffsetHours}` : `${tzOffsetHours}`;
+    
+    localTimeDisplay = (
+      <div className="flex items-center gap-2 border-l border-zinc-700 pl-4 ml-2 whitespace-nowrap">
+        <div className="text-xs text-zinc-400">Lokal ({targetLocation.name}, UTC{offsetStr}):</div>
+        <div className="text-base font-mono text-blue-400 font-medium">
+          {formatUTC(localDate)}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 font-sans">
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 font-sans flex flex-col items-center gap-3">
+      {/* Time Info */}
+      <div className="bg-zinc-950/80 backdrop-blur-md border border-zinc-800 rounded-full px-6 py-2 shadow-xl flex items-center justify-center max-w-[95vw] overflow-x-auto custom-scrollbar">
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <div className="text-xs text-zinc-400">Simulasi (UTC):</div>
+          <div className="text-base font-mono text-emerald-400 font-medium">
+            {formatUTC(date)}
+          </div>
+        </div>
+        {localTimeDisplay}
+      </div>
+
       <div className="bg-zinc-950/90 backdrop-blur-md border border-zinc-800 rounded-full py-2 px-4 shadow-2xl flex items-center gap-4">
         
         {/* Rewind Controls */}

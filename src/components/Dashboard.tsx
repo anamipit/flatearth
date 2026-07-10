@@ -7,7 +7,7 @@ import { EclipseTableModal } from './EclipseTableModal';
 import { DatePickerModal } from './DatePickerModal';
 
 export function Dashboard() {
-  const { currentTime, speedMultiplier, isPlaying, setSpeedMultiplier, togglePlay, resetToNow, setCurrentTime } = useSimulation();
+  const { currentTime, speedMultiplier, isPlaying, setSpeedMultiplier, togglePlay, resetToNow, setCurrentTime, sunScale, sunHeight, setSunScale, setSunHeight } = useSimulation();
   const [eclipseModal, setEclipseModal] = useState<'solar' | 'lunar' | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -45,6 +45,14 @@ export function Dashboard() {
     return `${Math.abs(val).toFixed(2)}° ${dir}`;
   };
 
+  const formatRA = (raDeg: number) => {
+    const hours = raDeg / 15;
+    const h = Math.floor(hours);
+    const m = Math.floor((hours % 1) * 60);
+    const s = Math.floor((((hours % 1) * 60) % 1) * 60);
+    return `${h}h ${m}m ${s}s`;
+  };
+
   return (
     <>
       <div className="absolute top-4 left-4 z-10 w-80 bg-zinc-950/80 backdrop-blur-md border border-zinc-800 rounded-xl p-5 text-zinc-100 shadow-2xl font-sans transition-all duration-300">
@@ -69,20 +77,12 @@ export function Dashboard() {
         
         {!isMinimized && (
           <div className="space-y-4">
-            {/* Time Info */}
-            <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50">
-              <div className="text-xs text-zinc-400 mb-1">Waktu Simulasi (UTC)</div>
-              <div className="text-lg font-mono text-emerald-400">
-                {format(date, "yyyy-MM-dd HH:mm:ss")}
-              </div>
-            </div>
-
             {/* Coordinates */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50">
                 <div className="text-xs text-zinc-400 mb-2 flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)]"></span>
-                  Titik Matahari
+                  Titik Subsolar
                 </div>
                 <div className="font-mono text-xs space-y-1">
                   <div>Lat: {formatCoord(sunSub.lat, true)}</div>
@@ -91,26 +91,51 @@ export function Dashboard() {
               </div>
               <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50">
                 <div className="text-xs text-zinc-400 mb-2 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-blue-100 shadow-[0_0_8px_rgba(219,234,254,0.8)]"></span>
-                  Titik Bulan
+                  <span className="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.8)]"></span>
+                  Astronomis
                 </div>
                 <div className="font-mono text-xs space-y-1">
-                  <div>Lat: {formatCoord(moonSub.lat, true)}</div>
-                  <div>Lon: {formatCoord(moonSub.lon, false)}</div>
+                  <div>RA: {formatRA(sunPos.ra)}</div>
+                  <div>Dec: {formatCoord(sunPos.dec, true)}</div>
                 </div>
               </div>
             </div>
             
             {/* Eclipse Finders */}
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => setEclipseModal('solar')} className="flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-zinc-700">
-                <Eclipse size={12} className="text-yellow-400" />
-                Gerhana Matahari
-              </button>
-              <button onClick={() => setEclipseModal('lunar')} className="flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-zinc-700">
-                <Moon size={12} className="text-red-400" />
-                Gerhana Bulan
-              </button>
+            <button onClick={() => setEclipseModal('solar')} className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-zinc-700">
+              <Eclipse size={12} className="text-yellow-400" />
+              Gerhana Matahari
+            </button>
+
+            {/* Scale Controls */}
+            <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50 space-y-3">
+              <div>
+                <div className="flex justify-between text-xs text-zinc-400 mb-1">
+                  <span>Ukuran Matahari</span>
+                  <span className="font-mono">{sunScale.toFixed(1)}x</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="0.1" max="5" step="0.1" 
+                  value={sunScale} 
+                  onChange={(e) => setSunScale(parseFloat(e.target.value))}
+                  className="w-full accent-yellow-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+              
+              <div>
+                <div className="flex justify-between text-xs text-zinc-400 mb-1">
+                  <span>Ketinggian Matahari</span>
+                  <span className="font-mono">{sunHeight.toFixed(1)}</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="1" max="10" step="0.1" 
+                  value={sunHeight} 
+                  onChange={(e) => setSunHeight(parseFloat(e.target.value))}
+                  className="w-full accent-yellow-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
             </div>
 
             {/* Notifications */}

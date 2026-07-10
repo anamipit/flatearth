@@ -10,7 +10,7 @@ export function CelestialBodies() {
   const moonRef = useRef<THREE.Group>(null);
   const moonMatRef = useRef<THREE.MeshStandardMaterial>(null);
   
-  const { currentTime, advanceTime } = useSimulation();
+  const { currentTime, advanceTime, sunScale, moonScale, sunHeight, moonHeight } = useSimulation();
 
   useFrame((state, delta) => {
     // Delta is in seconds, advance simulation
@@ -24,7 +24,7 @@ export function CelestialBodies() {
     const sunFlat = latLonToFlatEarth(sunSub.lat, sunSub.lon);
     
     if (sunRef.current) {
-      sunRef.current.position.set(sunFlat.x, 3.0, sunFlat.z);
+      sunRef.current.position.set(sunFlat.x, useSimulation.getState().sunHeight, sunFlat.z);
     }
     
     const moonPos = getMoonPosition(date);
@@ -32,7 +32,7 @@ export function CelestialBodies() {
     const moonFlat = latLonToFlatEarth(moonSub.lat, moonSub.lon);
     
     if (moonRef.current) {
-      moonRef.current.position.set(moonFlat.x, 3.0, moonFlat.z); // Same height to block effectively
+      moonRef.current.position.set(moonFlat.x, useSimulation.getState().moonHeight, moonFlat.z); // Same height to block effectively
     }
 
     // Eclipse logic for coloring
@@ -52,7 +52,7 @@ export function CelestialBodies() {
   return (
     <>
       {/* Sun */}
-      <group ref={sunRef}>
+      <group ref={sunRef} scale={[sunScale, sunScale, sunScale]}>
         <Sphere args={[0.2, 32, 32]}>
           <meshBasicMaterial color="#fef08a" />
         </Sphere>
@@ -65,7 +65,7 @@ export function CelestialBodies() {
       </group>
       
       {/* Moon */}
-      <group ref={moonRef}>
+      <group ref={moonRef} scale={[moonScale, moonScale, moonScale]}>
         <Sphere args={[0.18, 32, 32]}>
           <meshStandardMaterial ref={moonMatRef} color="#e2e8f0" roughness={0.9} metalness={0.1} />
         </Sphere>
