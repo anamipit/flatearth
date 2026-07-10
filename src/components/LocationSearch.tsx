@@ -58,9 +58,9 @@ export function LocationSearch() {
   };
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-80 font-sans" ref={wrapperRef}>
+    <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-20 w-64 font-sans" ref={wrapperRef}>
       <div className="relative flex items-center bg-zinc-950/90 backdrop-blur-md border border-zinc-800 rounded-full shadow-2xl px-3 py-2 transition-all">
-        <Search size={16} className="text-zinc-400 min-w-4" />
+        <Search size={10} className="text-zinc-400 min-w-4" />
         <input
           type="text"
           value={query}
@@ -70,12 +70,12 @@ export function LocationSearch() {
           }}
           onFocus={() => setIsOpen(true)}
           placeholder={targetLocation ? `📍 ${targetLocation.name}` : "Cari kota (mis: Bandung)..."}
-          className="bg-transparent border-none outline-none text-sm text-zinc-100 w-full px-2 placeholder:text-zinc-500"
+          className="bg-transparent border-none outline-none text-[9px] text-zinc-100 w-full px-2 placeholder:text-zinc-500"
         />
-        {isSearching && <Loader2 size={14} className="text-zinc-400 animate-spin" />}
+        {isSearching && <Loader2 size={10} className="text-zinc-400 animate-spin" />}
         {targetLocation && !query && (
           <button onClick={clearLocation} className="p-1 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors">
-            <X size={14} />
+            <X size={10} />
           </button>
         )}
       </div>
@@ -88,19 +88,19 @@ export function LocationSearch() {
                 <li key={idx}>
                   <button
                     onClick={() => handleSelect(item)}
-                    className="w-full text-left px-4 py-2.5 hover:bg-zinc-800/80 transition-colors flex items-start gap-3 border-b border-zinc-800/50 last:border-0"
+                    className="w-full text-left px-4 py-2.5 hover:bg-zinc-800/80 transition-colors flex items-start gap-1 border-b border-zinc-800/50 last:border-0"
                   >
-                    <MapPin size={16} className="text-emerald-500 mt-0.5 shrink-0" />
+                    <MapPin size={10} className="text-emerald-500 mt-0.5 shrink-0" />
                     <div>
-                      <div className="text-sm font-medium text-zinc-200 line-clamp-1">{item.display_name.split(',')[0]}</div>
-                      <div className="text-xs text-zinc-500 line-clamp-1">{item.display_name}</div>
+                      <div className="text-[9px] font-medium text-zinc-200 line-clamp-1">{item.display_name.split(',')[0]}</div>
+                      <div className="text-[9px] text-zinc-500 line-clamp-1">{item.display_name}</div>
                     </div>
                   </button>
                 </li>
               ))}
             </ul>
           ) : query.trim().length >= 3 && !isSearching ? (
-            <div className="p-4 text-center text-sm text-zinc-500">
+            <div className="p-2.5 text-center text-[9px] text-zinc-500">
               Tidak ada hasil ditemukan.
             </div>
           ) : null}

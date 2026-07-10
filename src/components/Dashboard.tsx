@@ -89,41 +89,41 @@ export function Dashboard() {
 
   return (
     <>
-      <div className="absolute top-4 left-4 z-10 w-80 bg-zinc-950/80 backdrop-blur-md border border-zinc-800 rounded-xl p-5 text-zinc-100 shadow-2xl font-sans transition-all duration-300">
+      <div className="absolute top-2.5 left-4 z-10 w-64 bg-zinc-950/80 backdrop-blur-md border border-zinc-800 rounded-xl p-2 text-zinc-100 shadow-2xl font-sans transition-all duration-300">
         <div className={`flex items-center justify-between ${isMinimized ? '' : 'mb-4'}`}>
-          <h1 className="text-lg font-medium tracking-tight text-white">Flat Earth Tracker</h1>
-          <div className="flex gap-2">
+          <h1 className="text-[9px] font-medium tracking-tight text-white">Flat Earth Tracker</h1>
+          <div className="flex gap-1">
             {!isMinimized && (
               <button onClick={resetToNow} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-md transition-colors" title="Kembali ke Sekarang">
-                <RotateCcw size={14} />
+                <RotateCcw size={10} />
               </button>
             )}
             <button onClick={() => setIsMinimized(!isMinimized)} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-md transition-colors" title={isMinimized ? "Perbesar" : "Perkecil"}>
-              {isMinimized ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              {isMinimized ? <ChevronDown size={10} /> : <ChevronUp size={10} />}
             </button>
           </div>
         </div>
         
         {!isMinimized && (
-          <div className="space-y-4">
+          <div className="space-y-1">
             {/* Coordinates */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50">
-                <div className="text-xs text-zinc-400 mb-2 flex items-center gap-1">
+            <div className="grid grid-cols-2 gap-1">
+              <div className="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800/50">
+                <div className="text-[9px] text-zinc-400 mb-2 flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)]"></span>
                   Titik Subsolar
                 </div>
-                <div className="font-mono text-xs space-y-1">
+                <div className="font-mono text-[9px] space-y-1">
                   <div>Lat: {formatCoord(sunSub.lat, true)}</div>
                   <div>Lon: {formatCoord(sunSub.lon, false)}</div>
                 </div>
               </div>
-              <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50">
-                <div className="text-xs text-zinc-400 mb-2 flex items-center gap-1">
+              <div className="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800/50">
+                <div className="text-[9px] text-zinc-400 mb-2 flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.8)]"></span>
                   Matahari (Eklipika)
                 </div>
-                <div className="font-mono text-xs space-y-1">
+                <div className="font-mono text-[9px] space-y-1">
                   <div>Bujur: {planetStats.sun.elon.toFixed(2)}°</div>
                   <div>Lintang: {planetStats.sun.elat.toFixed(4)}°</div>
                 </div>
@@ -131,21 +131,21 @@ export function Dashboard() {
             </div>
             
             {/* Eclipse Finders & Astro Events */}
-            <div className="space-y-2">
-              <div className="text-xs text-zinc-400">Pencarian & Peristiwa</div>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <div className="text-[9px] text-zinc-400">Pencarian & Peristiwa</div>
+              <div className="grid grid-cols-2 gap-1">
                 <button 
                   onClick={() => setShowAstroEvents(true)} 
-                  className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-emerald-700/50 text-emerald-400"
+                  className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-[9px] py-2 rounded-md transition-colors border border-emerald-700/50 text-emerald-400"
                 >
-                  <Calendar size={12} />
+                  <Calendar size={10} />
                   Kalender
                 </button>
                 <button 
                   onClick={() => setEclipseModal({type: 'solar', scope: 'global'})} 
-                  className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-xs py-2 rounded-md transition-colors border border-zinc-700"
+                  className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-[9px] py-2 rounded-md transition-colors border border-zinc-700"
                 >
-                  <Eclipse size={12} className="text-yellow-400" />
+                  <Eclipse size={10} className="text-yellow-400" />
                   Gerhana
                 </button>
               </div>
@@ -153,7 +153,7 @@ export function Dashboard() {
                 <div className="pt-1">
                   <button 
                     onClick={() => setEclipseModal({type: 'solar', scope: 'local'})} 
-                    className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-[10px] py-1.5 rounded-md transition-colors border border-emerald-700/50 text-emerald-400"
+                    className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-[9px] py-1.5 rounded-md transition-colors border border-emerald-700/50 text-emerald-400"
                   >
                     <Eclipse size={10} /> 
                     <span className="truncate max-w-[150px]">Gerhana di {targetLocation.name}</span>
@@ -163,9 +163,9 @@ export function Dashboard() {
             </div>
 
             {/* Scale Controls */}
-            <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50 space-y-3">
+            <div className="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800/50 space-y-1.5">
               <div>
-                <div className="flex justify-between text-xs text-zinc-400 mb-1">
+                <div className="flex justify-between text-[9px] text-zinc-400 mb-1">
                   <span>Ukuran Matahari</span>
                   <span className="font-mono">{sunScale.toFixed(1)}x</span>
                 </div>
@@ -179,7 +179,7 @@ export function Dashboard() {
               </div>
               
               <div>
-                <div className="flex justify-between text-xs text-zinc-400 mb-1">
+                <div className="flex justify-between text-[9px] text-zinc-400 mb-1">
                   <span>Ketinggian Matahari</span>
                   <span className="font-mono">{sunHeight.toFixed(1)}</span>
                 </div>
@@ -194,10 +194,10 @@ export function Dashboard() {
             </div>
 
             {/* Constellation Toggle */}
-            <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles size={14} className={showConstellations ? "text-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]" : "text-zinc-500"} />
-                <span className="text-xs text-zinc-300 font-medium">Bintang & Rasi (Polaris)</span>
+            <div className="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800/50 flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <Sparkles size={10} className={showConstellations ? "text-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]" : "text-zinc-500"} />
+                <span className="text-[9px] text-zinc-300 font-medium">Bintang & Rasi (Polaris)</span>
               </div>
               <button
                 onClick={() => setShowConstellations(!showConstellations)}
@@ -215,36 +215,36 @@ export function Dashboard() {
 
             {/* Target Location Rise/Set Info */}
             {targetLocation && riseSetTimes && (
-              <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50 space-y-2">
-                <div className="text-xs text-emerald-400 font-medium border-b border-zinc-800/50 pb-1 mb-2">
+              <div className="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800/50 space-y-1">
+                <div className="text-[9px] text-emerald-400 font-medium border-b border-zinc-800/50 pb-1 mb-2">
                   📍 {targetLocation.name} (UTC)
                 </div>
                 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1">
                   <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
-                    <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunrise size={10} className="text-yellow-500"/> Matahari Terbit</div>
-                    <div className="text-xs font-mono text-zinc-300 mt-1">
+                    <div className="text-[9px] text-zinc-500 flex items-center gap-1"><Sunrise size={10} className="text-yellow-500"/> Matahari Terbit</div>
+                    <div className="text-[9px] font-mono text-zinc-300 mt-1">
                       {formatTime(riseSetTimes.sunRise)}
                     </div>
                   </div>
                   <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
-                    <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunset size={10} className="text-orange-500"/> Matahari Terbenam</div>
-                    <div className="text-xs font-mono text-zinc-300 mt-1">
+                    <div className="text-[9px] text-zinc-500 flex items-center gap-1"><Sunset size={10} className="text-orange-500"/> Matahari Terbenam</div>
+                    <div className="text-[9px] font-mono text-zinc-300 mt-1">
                       {formatTime(riseSetTimes.sunSet)}
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1">
                   <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
-                    <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunrise size={10} className="text-blue-300"/> Bulan Terbit</div>
-                    <div className="text-xs font-mono text-zinc-300 mt-1">
+                    <div className="text-[9px] text-zinc-500 flex items-center gap-1"><Sunrise size={10} className="text-blue-300"/> Bulan Terbit</div>
+                    <div className="text-[9px] font-mono text-zinc-300 mt-1">
                       {formatTime(riseSetTimes.moonRise)}
                     </div>
                   </div>
                   <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
-                    <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunset size={10} className="text-indigo-400"/> Bulan Terbenam</div>
-                    <div className="text-xs font-mono text-zinc-300 mt-1">
+                    <div className="text-[9px] text-zinc-500 flex items-center gap-1"><Sunset size={10} className="text-indigo-400"/> Bulan Terbenam</div>
+                    <div className="text-[9px] font-mono text-zinc-300 mt-1">
                       {formatTime(riseSetTimes.moonSet)}
                     </div>
                   </div>
@@ -254,7 +254,7 @@ export function Dashboard() {
 
             {/* Notifications */}
             {eventText && (
-              <div className="bg-indigo-950/40 border border-indigo-500/30 text-indigo-200 text-xs py-2 px-3 rounded-lg flex items-center gap-2 animate-pulse">
+              <div className="bg-indigo-950/40 border border-indigo-500/30 text-indigo-200 text-[9px] py-2 px-3 rounded-lg flex items-center gap-1 animate-pulse">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>

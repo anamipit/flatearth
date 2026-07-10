@@ -27,8 +27,8 @@ export function PlaybackControls() {
     const offsetStr = tzOffsetHours >= 0 ? `+${tzOffsetHours}` : `${tzOffsetHours}`;
     
     localTimeDisplay = (
-      <div className="flex items-center gap-2 border-l border-zinc-700 pl-4 ml-2 whitespace-nowrap">
-        <div className="text-xs text-zinc-400">Lokal ({targetLocation.name}, UTC{offsetStr}):</div>
+      <div className="flex items-center gap-1 border-l border-zinc-700 pl-4 ml-2 whitespace-nowrap">
+        <div className="text-[9px] text-zinc-400">Lokal ({targetLocation.name}, UTC{offsetStr}):</div>
         <div className="text-base font-mono text-blue-400 font-medium">
           {formatUTC(localDate)}
         </div>
@@ -37,15 +37,15 @@ export function PlaybackControls() {
   }
 
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 font-sans flex flex-col items-center gap-3">
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 font-sans flex flex-col items-center gap-1">
       {/* Time Info */}
       <button 
         onClick={() => setShowDatePicker(true)}
         className="bg-zinc-950/80 hover:bg-zinc-900/90 transition-colors backdrop-blur-md border border-zinc-800 rounded-full px-6 py-2 shadow-xl flex items-center justify-center max-w-[95vw] overflow-x-auto custom-scrollbar group cursor-pointer"
         title="Pilih Tanggal & Waktu"
       >
-        <div className="flex items-center gap-2 whitespace-nowrap">
-          <div className="text-xs text-zinc-400">Simulasi (UTC):</div>
+        <div className="flex items-center gap-1 whitespace-nowrap">
+          <div className="text-[9px] text-zinc-400">Simulasi (UTC):</div>
           <div className="text-base font-mono text-emerald-400 font-medium">
             {formatUTC(date)}
           </div>
@@ -54,22 +54,22 @@ export function PlaybackControls() {
         {localTimeDisplay}
         
         <div className="ml-4 pl-4 border-l border-zinc-700 text-zinc-500 group-hover:text-yellow-400 transition-colors flex items-center justify-center">
-          <Calendar size={16} />
+          <Calendar size={10} />
         </div>
       </button>
 
-      <div className="bg-zinc-950/90 backdrop-blur-md border border-zinc-800 rounded-full py-2 px-4 shadow-2xl flex items-center gap-4">
+      <div className="bg-zinc-950/90 backdrop-blur-md border border-zinc-800 rounded-full py-2 px-4 shadow-2xl flex items-center gap-1.5">
         
         {/* Rewind Controls */}
         <div className="flex items-center gap-1">
           <div className="text-zinc-500 mr-2 flex items-center justify-center">
-            <Rewind size={14} />
+            <Rewind size={10} />
           </div>
           {[...speeds].reverse().map(({ value, label }) => (
             <button
               key={`rev-${value}`}
               onClick={() => setSpeedMultiplier(-value)}
-              className={`text-[11px] font-medium px-2 py-1.5 rounded-full transition-colors whitespace-nowrap
+              className={`text-[9px] font-medium px-2 py-1.5 rounded-full transition-colors whitespace-nowrap
                 ${speedMultiplier === -value ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'}`}
             >
               -{label}
@@ -83,7 +83,7 @@ export function PlaybackControls() {
           onClick={togglePlay} 
           className="flex items-center justify-center w-10 h-10 bg-zinc-100 hover:bg-white text-zinc-900 rounded-full transition-transform active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.2)]"
         >
-          {isPlaying ? <Pause size={18} className="fill-current" /> : <Play size={18} className="fill-current ml-1" />}
+          {isPlaying ? <Pause size={14} className="fill-current" /> : <Play size={14} className="fill-current ml-1" />}
         </button>
         <div className="w-px h-8 bg-zinc-800 mx-1"></div>
 
@@ -93,14 +93,14 @@ export function PlaybackControls() {
             <button
               key={`fwd-${value}`}
               onClick={() => setSpeedMultiplier(value)}
-              className={`text-[11px] font-medium px-2 py-1.5 rounded-full transition-colors whitespace-nowrap
+              className={`text-[9px] font-medium px-2 py-1.5 rounded-full transition-colors whitespace-nowrap
                 ${speedMultiplier === value ? 'bg-emerald-600 text-white' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'}`}
             >
               {label}
             </button>
           ))}
           <div className="text-zinc-500 ml-2 flex items-center justify-center">
-            <FastForward size={14} />
+            <FastForward size={10} />
           </div>
         </div>
         
