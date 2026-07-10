@@ -1,0 +1,6 @@
+{
+  "name": "Flat Earth Tracker",
+  "description": "3D interactive flat earth map with accurate Sun and Moon astronomical calculations, real-time tracking, and orbital visualization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
