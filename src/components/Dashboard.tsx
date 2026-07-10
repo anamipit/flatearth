@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
-import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, Calendar, ChevronUp, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, Calendar, ChevronUp, ChevronDown, Sparkles, Sunrise, Sunset } from 'lucide-react';
 import { useSimulation } from '../store/useSimulation';
-import { getSunPosition, getMoonPosition, getGMST, getSubpoint, getAngularDistance, findNextEclipse } from '../lib/astronomy';
+import { getSunPosition, getMoonPosition, getGMST, getSubpoint, getAngularDistance, findNextEclipse, getRiseSetTimes } from '../lib/astronomy';
 import { format } from 'date-fns';
 import { EclipseTableModal } from './EclipseTableModal';
 import { DatePickerModal } from './DatePickerModal';
 
 export function Dashboard() {
-  const { currentTime, speedMultiplier, isPlaying, setSpeedMultiplier, togglePlay, resetToNow, setCurrentTime, sunScale, sunHeight, setSunScale, setSunHeight } = useSimulation();
+  const { 
+    currentTime, 
+    speedMultiplier, 
+    isPlaying, 
+    setSpeedMultiplier, 
+    togglePlay, 
+    resetToNow, 
+    setCurrentTime, 
+    sunScale, 
+    sunHeight, 
+    setSunScale, 
+    setSunHeight,
+    showConstellations,
+    setShowConstellations,
+    targetLocation
+  } = useSimulation();
   const [eclipseModal, setEclipseModal] = useState<'solar' | 'lunar' | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  
+  const [riseSetTimes, setRiseSetTimes] = useState<{sunRise: Date|null, sunSet: Date|null, moonRise: Date|null, moonSet: Date|null} | null>(null);
   
   const date = new Date(currentTime);
   const gmst = getGMST(date);
@@ -20,6 +37,19 @@ export function Dashboard() {
   
   const moonPos = getMoonPosition(date);
   const moonSub = getSubpoint(moonPos.ra, moonPos.dec, gmst);
+
+  useEffect(() => {
+    if (targetLocation) {
+      // Calculate based on the current simulation date (using start of day)
+      const startOfDay = new Date(date);
+      startOfDay.setUTCHours(0,0,0,0);
+      const times = getRiseSetTimes(startOfDay, targetLocation.lat, targetLocation.lon);
+      setRiseSetTimes(times);
+    } else {
+      setRiseSetTimes(null);
+    }
+  }, [targetLocation, date.getUTCDate(), date.getUTCMonth(), date.getUTCFullYear()]);
+
   
   // Check for conjunctions/eclipses
   const distance = getAngularDistance(sunSub.lat, sunSub.lon, moonSub.lat, moonSub.lon);
@@ -137,6 +167,65 @@ export function Dashboard() {
                 />
               </div>
             </div>
+
+            {/* Constellation Toggle */}
+            <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className={showConstellations ? "text-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]" : "text-zinc-500"} />
+                <span className="text-xs text-zinc-300 font-medium">Bintang & Rasi (Polaris)</span>
+              </div>
+              <button
+                onClick={() => setShowConstellations(!showConstellations)}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
+                  showConstellations ? 'bg-yellow-500' : 'bg-zinc-700'
+                }`}
+              >
+                <span
+                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-zinc-950 transition-transform ${
+                    showConstellations ? 'translate-x-4.5' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Target Location Rise/Set Info */}
+            {targetLocation && riseSetTimes && (
+              <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50 space-y-2">
+                <div className="text-xs text-emerald-400 font-medium border-b border-zinc-800/50 pb-1 mb-2">
+                  📍 {targetLocation.name}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
+                    <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunrise size={10} className="text-yellow-500"/> Matahari Terbit</div>
+                    <div className="text-xs font-mono text-zinc-300 mt-1">
+                      {riseSetTimes.sunRise ? format(riseSetTimes.sunRise, "HH:mm") : "-"}
+                    </div>
+                  </div>
+                  <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
+                    <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunset size={10} className="text-orange-500"/> Matahari Terbenam</div>
+                    <div className="text-xs font-mono text-zinc-300 mt-1">
+                      {riseSetTimes.sunSet ? format(riseSetTimes.sunSet, "HH:mm") : "-"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
+                    <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunrise size={10} className="text-blue-300"/> Bulan Terbit</div>
+                    <div className="text-xs font-mono text-zinc-300 mt-1">
+                      {riseSetTimes.moonRise ? format(riseSetTimes.moonRise, "HH:mm") : "-"}
+                    </div>
+                  </div>
+                  <div className="bg-zinc-950/50 p-2 rounded flex flex-col items-center justify-center border border-zinc-800/30">
+                    <div className="text-[10px] text-zinc-500 flex items-center gap-1"><Sunset size={10} className="text-indigo-400"/> Bulan Terbenam</div>
+                    <div className="text-xs font-mono text-zinc-300 mt-1">
+                      {riseSetTimes.moonSet ? format(riseSetTimes.moonSet, "HH:mm") : "-"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Notifications */}
             {eventText && (

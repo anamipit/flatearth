@@ -1,4 +1,4 @@
-import { Equator, SiderealTime, Body, AstroTime, Observer, SearchGlobalSolarEclipse, NextGlobalSolarEclipse, SearchLunarEclipse, NextLunarEclipse, MoonPhase as AstroMoonPhase, Illumination } from 'astronomy-engine';
+import { Equator, SiderealTime, Body, AstroTime, Observer, SearchGlobalSolarEclipse, NextGlobalSolarEclipse, SearchLunarEclipse, NextLunarEclipse, MoonPhase as AstroMoonPhase, Illumination, SearchRiseSet } from 'astronomy-engine';
 
 const rad = Math.PI / 180;
 const deg = 180 / Math.PI;
@@ -126,3 +126,26 @@ export function findEclipsesInRange(startDate: Date, endDate: Date, type: 'solar
   
   return eclipses;
 }
+
+export function getRiseSetTimes(date: Date, lat: number, lon: number) {
+  const time = new AstroTime(date);
+  const observer = new Observer(lat, lon, 0);
+  
+  try {
+    const sunRise = SearchRiseSet(Body.Sun, observer, 1, time, 1);
+    const sunSet = SearchRiseSet(Body.Sun, observer, -1, time, 1);
+    const moonRise = SearchRiseSet(Body.Moon, observer, 1, time, 1);
+    const moonSet = SearchRiseSet(Body.Moon, observer, -1, time, 1);
+    
+    return {
+      sunRise: sunRise ? sunRise.date : null,
+      sunSet: sunSet ? sunSet.date : null,
+      moonRise: moonRise ? moonRise.date : null,
+      moonSet: moonSet ? moonSet.date : null,
+    };
+  } catch (e) {
+    console.error("Error calculating rise/set times:", e);
+    return { sunRise: null, sunSet: null, moonRise: null, moonSet: null };
+  }
+}
+

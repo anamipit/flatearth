@@ -15,6 +15,10 @@ interface SimulationState {
   moonScale: number;
   sunHeight: number;
   moonHeight: number;
+  showConstellations: boolean;
+  cameraMovement: { x: number, y: number, z: number };
+  cameraRotation: { x: number, y: number };
+
   setCurrentTime: (time: number) => void;
   setSpeedMultiplier: (speed: number) => void;
   togglePlay: () => void;
@@ -25,6 +29,9 @@ interface SimulationState {
   setMoonScale: (scale: number) => void;
   setSunHeight: (height: number) => void;
   setMoonHeight: (height: number) => void;
+  setShowConstellations: (show: boolean) => void;
+  setCameraMovement: (movement: { x: number, y: number, z: number }) => void;
+  setCameraRotation: (rotation: { x: number, y: number }) => void;
 }
 
 export const useSimulation = create<SimulationState>((set) => ({
@@ -36,6 +43,9 @@ export const useSimulation = create<SimulationState>((set) => ({
   moonScale: 1,
   sunHeight: 3.0,
   moonHeight: 3.0,
+  showConstellations: true,
+  cameraMovement: { x: 0, y: 0, z: 0 },
+  cameraRotation: { x: 0, y: 0 },
   
   setCurrentTime: (time) => set({ currentTime: time }),
   setSpeedMultiplier: (speed) => set({ speedMultiplier: speed }),
@@ -50,8 +60,11 @@ export const useSimulation = create<SimulationState>((set) => ({
   resetToNow: () => set({ currentTime: Date.now(), speedMultiplier: 1, isPlaying: true }),
   setTargetLocation: (loc) => set({ targetLocation: loc }),
   setSunScale: (scale) => set({ sunScale: scale }),
-  setMoonScale: (scale) => set({ moonScale: scale }),
-  setSunHeight: (height) => set({ sunHeight: height }),
-  setMoonHeight: (height) => set({ moonHeight: height }),
+  setMoonScale: (scale: number) => set({ moonScale: scale }),
+  setSunHeight: (height: number) => set({ sunHeight: height }),
+  setMoonHeight: (height: number) => set({ moonHeight: height }),
+  setShowConstellations: (show: boolean) => set({ showConstellations: show }),
+  setCameraMovement: (movement) => set({ cameraMovement: movement }),
+  setCameraRotation: (rotation) => set({ cameraRotation: rotation }),
 }));
 

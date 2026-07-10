@@ -6,8 +6,10 @@ import { MoonPanel } from './components/MoonPanel';
 import { PlaybackControls } from './components/PlaybackControls';
 import { LocationSearch } from './components/LocationSearch';
 import { CameraController } from './components/CameraController';
+import { CameraNavigation } from './components/CameraNavigation';
 import { MapGrid } from './components/MapGrid';
 import { CelestialBodies } from './components/CelestialBodies';
+import { Constellations } from './components/Constellations';
 import { LocationPin } from './components/LocationPin';
 import { MAP_RADIUS } from './lib/astronomy';
 
@@ -20,6 +22,7 @@ export default function App() {
       <Dashboard />
       <MoonPanel />
       <PlaybackControls />
+      <CameraNavigation />
       
       <Canvas
         camera={{ position: [0, 15, 25], fov: 60 }}
@@ -34,6 +37,7 @@ export default function App() {
           
           <MapGrid />
           <CelestialBodies />
+          <Constellations />
           <LocationPin />
           
           <CameraController orbitRef={orbitRef} />
