@@ -16,6 +16,8 @@ import { DatePickerModal } from './components/DatePickerModal';
 import { AstroEventsModal } from './components/AstroEventsModal';
 import { AstroStats } from './components/AstroStats';
 import { FlightRoutePanel } from './components/FlightRoutePanel';
+import { LineOfSightPanel } from './components/LineOfSightPanel';
+import { StarTrailPanel } from './components/StarTrailPanel';
 import { FlightRoute3D } from './components/FlightRoute3D';
 import { MAP_RADIUS } from './lib/astronomy';
 import { useSimulation } from './store/useSimulation';
@@ -45,6 +47,8 @@ export default function App() {
       
       <AstroStats />
       <FlightRoutePanel />
+      <LineOfSightPanel />
+      <StarTrailPanel />
 
       <Canvas
         camera={{ position: [0, 15, 25], fov: 60 }}

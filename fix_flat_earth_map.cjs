@@ -1,20 +1,13 @@
-import React, { useRef, useMemo } from 'react';
-import { useFrame, useLoader } from '@react-three/fiber';
-import * as THREE from 'three';
-import { Circle } from '@react-three/drei';
-import { MAP_RADIUS } from '../lib/astronomy';
-import { useSimulation } from '../store/useSimulation';
-import { getSunPosition, getGMST, getSubpoint } from '../lib/astronomy';
+const fs = require('fs');
+let code = fs.readFileSync('src/components/FlatEarthMap.tsx', 'utf8');
 
-const vertexShader = `
-  varying vec2 vUv;
-  void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
+// The original fragment shader uses distance to subsolar point (lat2, lon) to determine shading.
+// For the flat earth model to look like a kidney bean, the shading shape needs to be mapped differently.
+// However, the current shader mathematically correctly maps the real globe distance to the flat plane (d = acos(cos_d)).
+// The user explicitly wants a "kidney bean" shape that hugs the edge in the southern summer.
+// We can modify the lightFactor to exaggerate this effect by mapping the distance directly on the 2D plane as an alternative visualization, or blending it.
 
-const fragmentShader = `
+const newFragmentShader = `
   uniform sampler2D tDay;
   uniform sampler2D tNight;
   uniform float sunLat;
@@ -102,48 +95,20 @@ const fragmentShader = `
   }
 `;
 
-export function FlatEarthMap() {
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
-  
-  const [dayTexture, nightTexture] = useLoader(THREE.TextureLoader, [
-    'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
-    'https://unpkg.com/three-globe/example/img/earth-night.jpg'
-  ]);
-  
-  // Ensure textures wrap horizontally
-  dayTexture.wrapS = THREE.RepeatWrapping;
-  nightTexture.wrapS = THREE.RepeatWrapping;
+code = code.replace(/const fragmentShader = `[\s\S]*?`;/, 'const fragmentShader = `' + newFragmentShader + '`;');
 
-  const uniforms = useMemo(() => ({
-    tDay: { value: dayTexture },
-    tNight: { value: nightTexture },
+code = code.replace(
+  /tNight: \{ value: nightTexture \},\n    sunLat: \{ value: 0\.0 \},\n    sunLon: \{ value: 0\.0 \},/,
+  `tNight: { value: nightTexture },
     sunLat: { value: 0.0 },
     sunLon: { value: 0.0 },
-    showRealTerminator: { value: 1.0 },
-  }), [dayTexture, nightTexture]);
+    showRealTerminator: { value: 1.0 },` // Default to the flat earth "kidney" terminator
+);
 
-  useFrame(() => {
-    if (materialRef.current) {
-      const date = new Date(useSimulation.getState().currentTime);
-      const gmst = getGMST(date);
-      const sunPos = getSunPosition(date);
-      const sunSub = getSubpoint(sunPos.ra, sunPos.dec, gmst);
-      
-      materialRef.current.uniforms.sunLat.value = sunSub.lat;
-      materialRef.current.uniforms.sunLon.value = sunSub.lon;
-      materialRef.current.uniforms.showRealTerminator.value = useSimulation.getState().flatTerminator ? 1.0 : 0.0;
-    }
-  });
+code = code.replace(
+  /materialRef\.current\.uniforms\.sunLon\.value = sunSub\.lon;/,
+  `materialRef.current.uniforms.sunLon.value = sunSub.lon;
+      materialRef.current.uniforms.showRealTerminator.value = useSimulation.getState().flatTerminator ? 1.0 : 0.0;`
+);
 
-  return (
-    <Circle args={[MAP_RADIUS, 128]} position={[0, 0, -0.05]} rotation={[-Math.PI / 2, 0, 0]}>
-      <shaderMaterial
-        ref={materialRef}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        uniforms={uniforms}
-        transparent={false}
-      />
-    </Circle>
-  );
-}
+fs.writeFileSync('src/components/FlatEarthMap.tsx', code);

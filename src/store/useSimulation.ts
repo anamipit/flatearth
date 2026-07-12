@@ -24,6 +24,10 @@ interface SimulationState {
   routeDeparture: Location | null;
   routeArrival: Location | null;
   showFlightPanel: boolean;
+  flatTerminator: boolean;
+  showIceWall: boolean;
+  showLosPanel: boolean;
+  showStarTrail: boolean;
 
   setCurrentTime: (time: number) => void;
   setSpeedMultiplier: (speed: number) => void;
@@ -44,6 +48,10 @@ interface SimulationState {
   setRouteDeparture: (loc: Location | null) => void;
   setRouteArrival: (loc: Location | null) => void;
   setShowFlightPanel: (show: boolean) => void;
+  setFlatTerminator: (show: boolean) => void;
+  setShowIceWall: (show: boolean) => void;
+  setShowLosPanel: (show: boolean) => void;
+  setShowStarTrail: (show: boolean) => void;
 }
 
 export const useSimulation = create<SimulationState>((set) => ({
@@ -64,6 +72,10 @@ export const useSimulation = create<SimulationState>((set) => ({
   routeDeparture: null,
   routeArrival: null,
   showFlightPanel: false,
+  flatTerminator: true,
+  showIceWall: true,
+  showLosPanel: false,
+  showStarTrail: false,
   
   setCurrentTime: (time) => set({ currentTime: time }),
   setSpeedMultiplier: (speed) => set({ speedMultiplier: speed }),
@@ -90,6 +102,10 @@ export const useSimulation = create<SimulationState>((set) => ({
   setRouteDeparture: (loc) => set({ routeDeparture: loc }),
   setRouteArrival: (loc) => set({ routeArrival: loc }),
   setShowFlightPanel: (show) => set({ showFlightPanel: show }),
+  setFlatTerminator: (show) => set({ flatTerminator: show }),
+  setShowIceWall: (show) => set({ showIceWall: show }),
+  setShowLosPanel: (show) => set({ showLosPanel: show }),
+  setShowStarTrail: (show) => set({ showStarTrail: show }),
 }));
 
 

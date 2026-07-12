@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, ChevronUp, ChevronDown, Sparkles, Sunrise, Sunset, Calendar, Plane } from 'lucide-react';
+import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, ChevronUp, ChevronDown, Sparkles, Sunrise, Sunset, Calendar, Plane, SunDim, Telescope, Snowflake, MountainSnow, Compass } from 'lucide-react';
 import { useSimulation } from '../store/useSimulation';
 import { getSunPosition, getMoonPosition, getGMST, getSubpoint, getAngularDistance, getRiseSetTimes, getPlanetStats } from '../lib/astronomy';
 import { format } from 'date-fns';
@@ -23,7 +23,15 @@ export function Dashboard() {
     targetLocation,
     setShowAstroEvents,
     showFlightPanel,
-    setShowFlightPanel
+    setShowFlightPanel,
+    flatTerminator,
+    setFlatTerminator,
+    showIceWall,
+    setShowIceWall,
+    showLosPanel,
+    setShowLosPanel,
+    showStarTrail,
+    setShowStarTrail
   } = useSimulation();
 
   const [eclipseModal, setEclipseModal] = useState<{type: 'solar' | 'lunar', scope: 'global' | 'local'} | null>(null);
@@ -109,7 +117,7 @@ export function Dashboard() {
         {!isMinimized && (
           <div className="space-y-1">
             {/* Coordinates */}
-            <div className="grid grid-cols-3 gap-1">
+            <div className="grid grid-cols-2 gap-1">
               <div className="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800/50">
                 <div className="text-[9px] text-zinc-400 mb-2 flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)]"></span>
@@ -135,7 +143,7 @@ export function Dashboard() {
             {/* Eclipse Finders & Astro Events */}
             <div className="space-y-1">
               <div className="text-[9px] text-zinc-400">Pencarian & Peristiwa</div>
-              <div className="grid grid-cols-3 gap-1">
+              <div className="grid grid-cols-2 gap-1">
 
                 <button 
                   onClick={() => setShowFlightPanel(!showFlightPanel)} 
@@ -172,6 +180,41 @@ export function Dashboard() {
               )}
             </div>
 
+            {/* View Mode */}
+            <div className="space-y-1">
+              <div className="text-[9px] text-zinc-400">Model Visualisasi</div>
+              <div className="grid grid-cols-2 gap-1">
+                <button 
+                  onClick={() => setFlatTerminator(!flatTerminator)}
+                  className={`w-full flex items-center justify-center gap-1.5 ${flatTerminator ? 'bg-orange-900/40 text-orange-400 border-orange-500/50' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'} text-[9px] py-1.5 rounded-md transition-colors border`}
+                >
+                  <SunDim size={10} />
+                  Sorotan Flat
+                </button>
+                <button 
+                  onClick={() => setShowIceWall(!showIceWall)}
+                  className={`w-full flex items-center justify-center gap-1.5 ${showIceWall ? 'bg-cyan-900/40 text-cyan-400 border-cyan-500/50' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'} text-[9px] py-1.5 rounded-md transition-colors border`}
+                >
+                  <MountainSnow size={10} />
+                  Dinding Es
+                </button>
+                <button 
+                  onClick={() => setShowLosPanel(!showLosPanel)}
+                  className={`w-full flex items-center justify-center gap-1.5 ${showLosPanel ? 'bg-purple-900/40 text-purple-400 border-purple-500/50' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'} text-[9px] py-1.5 rounded-md transition-colors border`}
+                >
+                  <Telescope size={10} />
+                  Line of Sight
+                </button>
+                <button 
+                  onClick={() => setShowStarTrail(!showStarTrail)}
+                  className={`w-full flex items-center justify-center gap-1.5 ${showStarTrail ? 'bg-yellow-900/40 text-yellow-400 border-yellow-500/50' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'} text-[9px] py-1.5 rounded-md transition-colors border`}
+                >
+                  <Compass size={10} />
+                  Bintang
+                </button>
+              </div>
+            </div>
+            
             {/* Scale Controls */}
             <div className="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800/50 space-y-1.5">
               <div>

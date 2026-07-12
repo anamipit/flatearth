@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { Ring, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { MAP_RADIUS, latLonToFlatEarth } from '../lib/astronomy';
+import { IceWall } from './IceWall';
 import { FlatEarthMap } from './FlatEarthMap';
 
 export function MapGrid() {
@@ -17,6 +18,7 @@ export function MapGrid() {
     <group>
       {/* Base Shader Map */}
       <FlatEarthMap />
+      <IceWall />
 
       <group rotation={[-Math.PI / 2, 0, 0]}>
         {/* Grid Lines */}
