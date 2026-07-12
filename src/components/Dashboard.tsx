@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, ChevronUp, ChevronDown, Sparkles, Sunrise, Sunset, Calendar } from 'lucide-react';
+import { Play, Pause, FastForward, RotateCcw, Eclipse, Moon, ChevronUp, ChevronDown, Sparkles, Sunrise, Sunset, Calendar, Plane } from 'lucide-react';
 import { useSimulation } from '../store/useSimulation';
 import { getSunPosition, getMoonPosition, getGMST, getSubpoint, getAngularDistance, getRiseSetTimes, getPlanetStats } from '../lib/astronomy';
 import { format } from 'date-fns';
@@ -21,7 +21,9 @@ export function Dashboard() {
     showConstellations,
     setShowConstellations,
     targetLocation,
-    setShowAstroEvents
+    setShowAstroEvents,
+    showFlightPanel,
+    setShowFlightPanel
   } = useSimulation();
 
   const [eclipseModal, setEclipseModal] = useState<{type: 'solar' | 'lunar', scope: 'global' | 'local'} | null>(null);
@@ -107,7 +109,7 @@ export function Dashboard() {
         {!isMinimized && (
           <div className="space-y-1">
             {/* Coordinates */}
-            <div className="grid grid-cols-2 gap-1">
+            <div className="grid grid-cols-3 gap-1">
               <div className="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800/50">
                 <div className="text-[9px] text-zinc-400 mb-2 flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)]"></span>
@@ -133,7 +135,15 @@ export function Dashboard() {
             {/* Eclipse Finders & Astro Events */}
             <div className="space-y-1">
               <div className="text-[9px] text-zinc-400">Pencarian & Peristiwa</div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid grid-cols-3 gap-1">
+
+                <button 
+                  onClick={() => setShowFlightPanel(!showFlightPanel)} 
+                  className={`w-full flex items-center justify-center gap-1.5 ${showFlightPanel ? 'bg-blue-900/40 text-blue-400 border-blue-500/50' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'} text-xs py-2 rounded-md transition-colors border`}
+                >
+                  <Plane size={12} />
+                  Rute
+                </button>
                 <button 
                   onClick={() => setShowAstroEvents(true)} 
                   className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-[9px] py-2 rounded-md transition-colors border border-emerald-700/50 text-emerald-400"

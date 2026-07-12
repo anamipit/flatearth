@@ -15,6 +15,8 @@ import { LocationPin } from './components/LocationPin';
 import { DatePickerModal } from './components/DatePickerModal';
 import { AstroEventsModal } from './components/AstroEventsModal';
 import { AstroStats } from './components/AstroStats';
+import { FlightRoutePanel } from './components/FlightRoutePanel';
+import { FlightRoute3D } from './components/FlightRoute3D';
 import { MAP_RADIUS } from './lib/astronomy';
 import { useSimulation } from './store/useSimulation';
 
@@ -42,6 +44,7 @@ export default function App() {
       )}
       
       <AstroStats />
+      <FlightRoutePanel />
 
       <Canvas
         camera={{ position: [0, 15, 25], fov: 60 }}
@@ -59,6 +62,7 @@ export default function App() {
           <Planets />
           <Constellations />
           <LocationPin />
+          <FlightRoute3D />
           
           <CameraController orbitRef={orbitRef} />
           
